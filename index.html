@@ -3,552 +3,814 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>小林的冒险日志</title>
+<title>冒险者日志</title>
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body {
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
-  background: #0a0a12; color: #e8e6f0; min-height: 100vh;
-}
-.app { max-width: 480px; margin: 0 auto; padding: 0 0 80px; }
-.nav {
-  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
-  width: 100%; max-width: 480px;
-  background: #12111c; border-top: 1px solid #2a2740;
-  display: flex; z-index: 50;
-}
-.nav-btn {
-  flex: 1; background: none; border: none; cursor: pointer;
-  padding: 12px 4px 16px; display: flex; flex-direction: column;
-  align-items: center; gap: 4px; color: #45435a; transition: color 0.2s;
-}
-.nav-btn.active { color: #a78bfa; }
-.nav-icon { font-size: 20px; line-height: 1; }
-.nav-label { font-size: 10px; letter-spacing: 0.5px; }
-.page-header {
-  padding: 1.5rem 1rem 0.5rem;
-  display: flex; align-items: center; justify-content: space-between;
-}
-.page-title { font-size: 11px; letter-spacing: 3px; color: #45435a; text-transform: uppercase; }
-.coins-display {
-  display: flex; align-items: center; gap: 6px;
-  background: #17151f; border: 1px solid #2a2740;
-  border-radius: 999px; padding: 6px 14px;
-  font-size: 13px; font-weight: 600; color: #fbbf24;
-}
-.panel {
-  background: #17151f; border: 1px solid #2a2740;
-  border-radius: 16px; padding: 1.25rem; margin: 12px 1rem 0;
-}
-.char-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
-.avatar {
-  width: 56px; height: 56px; border-radius: 50%;
-  background: linear-gradient(135deg, #7c3aed, #a78bfa);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 22px; font-weight: 700; color: #fff; flex-shrink: 0;
-  box-shadow: 0 0 24px rgba(124,58,237,0.45);
-}
-.char-name { font-size: 20px; font-weight: 700; color: #e8e6f0; }
-.char-title-el { font-size: 12px; color: #a78bfa; margin-top: 2px; letter-spacing: 0.5px; }
-.char-level { font-size: 11px; color: #6b6880; margin-top: 3px; }
-.exp-label { display: flex; justify-content: space-between; font-size: 11px; color: #6b6880; margin-bottom: 6px; }
-.exp-track { height: 7px; background: #1e1c2a; border-radius: 4px; overflow: hidden; }
-.exp-fill {
-  height: 100%; border-radius: 4px;
-  background: linear-gradient(90deg, #7c3aed, #a78bfa, #c084fc);
-  transition: width 0.8s cubic-bezier(.4,0,.2,1);
-  box-shadow: 0 0 10px rgba(124,58,237,0.5);
-}
-.stats { display: flex; gap: 8px; margin-top: 14px; }
-.stat {
-  flex: 1; background: #0f0e18; border: 1px solid #2a2740;
-  border-radius: 10px; padding: 10px 4px; text-align: center;
-}
-.stat-num { font-size: 18px; font-weight: 700; color: #e8e6f0; line-height: 1; }
-.stat-label { font-size: 10px; color: #6b6880; margin-top: 4px; }
-.section-title {
-  font-size: 11px; font-weight: 700; color: #6b6880;
-  letter-spacing: 2px; text-transform: uppercase;
-  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
-}
-.section-title::after { content:''; flex:1; height:1px; background:#1e1c2a; }
-.task-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 0; border-bottom: 1px solid #1a1828; transition: opacity 0.3s;
-}
-.task-row:last-child { border-bottom: none; }
-.task-row.done { opacity: 0.35; }
-.check {
-  width: 26px; height: 26px; border-radius: 50%;
-  border: 1.5px solid #3a3750; background: transparent; cursor: pointer;
-  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s; color: transparent; font-size: 12px;
-}
-.check.done { border:none; background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff; box-shadow:0 0 12px rgba(124,58,237,0.45); }
-.task-info { flex: 1; min-width: 0; }
-.task-name { font-size: 14px; color: #e8e6f0; }
-.task-row.done .task-name { text-decoration: line-through; }
-.task-meta { font-size: 11px; color: #45435a; margin-top: 2px; }
-.task-rewards { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
-.exp-badge { font-size: 11px; color: #a78bfa; font-weight: 600; white-space: nowrap; }
-.coin-badge { font-size: 11px; color: #fbbf24; font-weight: 600; white-space: nowrap; }
-.remove-btn { background:none; border:none; color:#3a3750; cursor:pointer; font-size:20px; padding:0 2px; line-height:1; transition:color 0.2s; }
-.remove-btn:hover { color:#f87171; }
-.add-area { display: flex; gap: 8px; }
-.add-area input {
-  flex:1; background:#0f0e18; border:1px solid #2a2740;
-  border-radius:10px; padding:10px 14px; font-size:14px;
-  color:#e8e6f0; outline:none; transition:border-color 0.2s; font-family:inherit;
-}
-.add-area input::placeholder { color:#45435a; }
-.add-area input:focus { border-color:#7c3aed; }
-.add-area button {
-  background:linear-gradient(135deg,#7c3aed,#a78bfa); border:none;
-  border-radius:10px; padding:10px 16px; color:#fff; font-size:14px;
-  cursor:pointer; font-family:inherit; font-weight:600; white-space:nowrap;
-}
-.checkin-btn {
-  width:100%; padding:14px;
-  background:linear-gradient(135deg,#7c3aed,#a78bfa);
-  border:none; border-radius:12px; cursor:pointer;
-  font-size:15px; font-weight:700; color:#fff; font-family:inherit;
-  letter-spacing:1px; transition:opacity 0.2s;
-  box-shadow:0 4px 20px rgba(124,58,237,0.4);
-}
-.checkin-btn:disabled { background:#2a2740; color:#6b6880; box-shadow:none; cursor:not-allowed; }
-.checkin-streak { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:10px; font-size:12px; color:#6b6880; }
-.checkin-days { display:flex; gap:6px; margin-top:12px; justify-content:center; flex-wrap:wrap; }
-.day-dot {
-  width:36px; height:36px; border-radius:50%;
-  border:1px solid #2a2740; display:flex; align-items:center;
-  justify-content:center; font-size:11px; color:#6b6880;
-}
-.day-dot.done { background:linear-gradient(135deg,#7c3aed,#a78bfa); border:none; color:#fff; }
-.day-dot.today { border-color:#a78bfa; color:#a78bfa; }
-.reward-row {
-  display:flex; align-items:center; gap:12px;
-  padding:12px 0; border-bottom:1px solid #1a1828;
-}
-.reward-row:last-child { border-bottom:none; }
-.reward-icon {
-  width:42px; height:42px; border-radius:12px;
-  background:#0f0e18; border:1px solid #2a2740;
-  display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;
-}
-.reward-info { flex:1; }
-.reward-name { font-size:14px; color:#e8e6f0; font-weight:500; }
-.reward-cost { font-size:11px; color:#fbbf24; margin-top:2px; }
-.buy-btn {
-  background:none; border:1px solid #fbbf24; border-radius:8px;
-  padding:6px 12px; color:#fbbf24; font-size:12px; font-weight:700;
-  cursor:pointer; font-family:inherit; white-space:nowrap; transition:all 0.2s;
-}
-.buy-btn:hover { background:#fbbf24; color:#0a0a12; }
-.buy-btn:disabled { border-color:#3a3750; color:#45435a; cursor:not-allowed; }
-.buy-btn:disabled:hover { background:none; color:#45435a; }
-.add-reward-area { display:flex; gap:8px; flex-wrap:wrap; }
-.add-reward-area input {
-  flex:1; min-width:100px; background:#0f0e18; border:1px solid #2a2740;
-  border-radius:10px; padding:8px 12px; font-size:13px;
-  color:#e8e6f0; outline:none; font-family:inherit;
-}
-.add-reward-area input:focus { border-color:#fbbf24; }
-.add-reward-area button {
-  background:none; border:1px solid #fbbf24; border-radius:10px;
-  padding:8px 14px; color:#fbbf24; font-size:13px; font-weight:700;
-  cursor:pointer; font-family:inherit; white-space:nowrap;
-}
-.toast {
-  position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-120px);
-  background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff;
-  padding:12px 28px; border-radius:999px; font-size:14px; font-weight:700;
-  white-Space:nowrap; z-index:99; transition:transform 0.4s cubic-bezier(.34,1.56,.64,1);
-  box-shadow:0 8px 32px rgba(124,58,237,0.5); text-align:center; max-width:90vw;
-}
-.toast.show { transform:translateX(-50%) translateY(0); }
-.gain {
-  position:fixed; top:40%; left:50%; transform:translate(-50%,-50%);
-  font-size:24px; font-weight:800; pointer-events:none;
-  animation:gainPop 1.3s ease forwards; z-index:98;
-}
-.gain.exp { color:#a78bfa; text-shadow:0 0 20px rgba(167,139,250,0.8); }
-.gain.coin { color:#fbbf24; text-shadow:0 0 20px rgba(251,191,36,0.8); }
-@keyframes gainPop {
-  0%   { opacity:1; transform:translate(-50%,-50%) scale(0.7); }
-  30%  { opacity:1; transform:translate(-50%,-65%) scale(1.15); }
-  100% { opacity:0; transform:translate(-50%,-100%) scale(1); }
-}
-.page { display:none; }
-.page.active { display:block; }
-.note { font-size:11px; color:#45435a; text-align:center; margin-top:10px; }
-.checkin-rewards-grid { display:flex; flex-direction:column; gap:0; }
-.cr-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #1a1828; }
-.cr-row:last-child { border-bottom:none; }
-.cr-icon { font-size:22px; width:36px; text-align:center; }
-.cr-info { flex:1; }
-.cr-name { font-size:13px; color:#e8e6f0; font-weight:500; }
-.cr-sub { font-size:11px; color:#45435a; margin-top:2px; }
-.cr-rewards { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'PingFang SC','Microsoft YaHei',sans-serif;min-height:100vh;background:#0a0a12;color:#e8e6f0;}
+
+/* THEMES */
+body.t-dark  {background:#0a0a12;color:#e8e6f0;--c1:#7c3aed;--c2:#a78bfa;--c3:#17151f;--c4:#2a2740;--c5:#1e1c2a;--c6:#0f0e18;--c7:#45435a;--c8:#6b6880;--coin:#fbbf24;}
+body.t-pink  {background:#110a10;color:#f0e6ee;--c1:#c0609a;--c2:#f0a8d0;--c3:#1f1018;--c4:#3d2035;--c5:#2d1828;--c6:#18101a;--c7:#5a4058;--c8:#8a6880;--coin:#fbbf24;}
+body.t-blue  {background:#090f18;color:#e6f2f8;--c1:#1a6fa8;--c2:#60c0f0;--c3:#0e1820;--c4:#1a3040;--c5:#142432;--c6:#090f18;--c7:#3a6080;--c8:#6090aa;--coin:#fbbf24;}
+body.t-green {background:#090f0a;color:#e6f0e8;--c1:#1a8040;--c2:#50d080;--c3:#0e1e10;--c4:#1a3c22;--c5:#142c1a;--c6:#091008;--c7:#3a6040;--c8:#608068;--coin:#fbbf24;}
+body.t-gold  {background:#100e08;color:#f0ede6;--c1:#b05010;--c2:#f0b030;--c3:#1e1808;--c4:#3a2c10;--c5:#2c2008;--c6:#140e04;--c7:#584830;--c8:#807060;--coin:#a78bfa;}
+body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1e1c2a;--c6:#0f0e18;--c7:#45435a;--c8:#6b6880;--coin:#fbbf24;}
+
+.app{max-width:480px;margin:0 auto;padding:0 0 80px;}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;background:var(--c3);border-top:1px solid var(--c4);display:flex;z-index:50;}
+.nav-btn{flex:1;background:none;border:none;cursor:pointer;padding:12px 4px 16px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--c7);transition:color 0.2s;}
+.nav-btn.active{color:var(--c2);}
+.nav-icon{font-size:20px;line-height:1;}
+.nav-label{font-size:10px;letter-spacing:0.5px;}
+.ph{padding:1.5rem 1rem 0.5rem;display:flex;align-items:center;justify-content:space-between;}
+.pt{font-size:11px;letter-spacing:3px;color:var(--c7);text-transform:uppercase;}
+.cd{display:flex;align-items:center;gap:6px;background:var(--c3);border:1px solid var(--c4);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--coin);}
+.panel{background:var(--c3);border:1px solid var(--c4);border-radius:16px;padding:1.25rem;margin:12px 1rem 0;}
+.sec{font-size:11px;font-weight:700;color:var(--c8);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.sec::after{content:'';flex:1;height:1px;background:var(--c5);}
+.avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--c1),var(--c2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0;cursor:pointer;}
+.char-name{font-size:20px;font-weight:700;cursor:pointer;border-bottom:1px dashed var(--c4);}
+.char-name:hover{border-bottom-color:var(--c2);}
+.char-title{font-size:12px;color:var(--c2);margin-top:2px;}
+.char-lv{font-size:11px;color:var(--c8);margin-top:3px;}
+.hint{font-size:10px;color:var(--c7);margin-top:1px;}
+.exp-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--c8);margin-bottom:6px;}
+.exp-track{height:7px;background:var(--c5);border-radius:4px;overflow:hidden;}
+.exp-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--c1),var(--c2));transition:width 0.8s;}
+.stats{display:flex;gap:8px;margin-top:14px;}
+.stat{flex:1;background:var(--c6);border:1px solid var(--c4);border-radius:10px;padding:10px 4px;text-align:center;}
+.sn{font-size:18px;font-weight:700;line-height:1;}
+.sl{font-size:10px;color:var(--c8);margin-top:4px;}
+.task-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--c5);transition:opacity 0.3s;}
+.task-row:last-child{border-bottom:none;}
+.task-row.done{opacity:0.35;}
+.chk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--c4);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;color:transparent;font-size:12px;}
+.chk.done{border:none;background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff;}
+.ti{flex:1;min-width:0;}
+.tn{font-size:14px;}
+.task-row.done .tn{text-decoration:line-through;}
+.tm{font-size:11px;color:var(--c7);margin-top:2px;}
+.tr{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
+.eb{font-size:11px;color:var(--c2);font-weight:600;white-space:nowrap;}
+.cb{font-size:11px;color:var(--coin);font-weight:600;white-space:nowrap;}
+.ibtn{background:none;border:none;cursor:pointer;color:var(--c7);font-size:16px;padding:0 3px;line-height:1;transition:color 0.2s;flex-shrink:0;}
+.ibtn:hover{color:var(--c2);}
+.add-row{display:flex;gap:8px;}
+.sinput{flex:1;background:var(--c6);border:1px solid var(--c4);border-radius:10px;padding:10px 14px;font-size:14px;color:inherit;outline:none;transition:border-color 0.2s;font-family:inherit;}
+.sinput::placeholder{color:var(--c7);}
+.sinput:focus{border-color:var(--c1);}
+.pbtn{background:linear-gradient(135deg,var(--c1),var(--c2));border:none;border-radius:10px;padding:10px 16px;color:#fff;font-size:14px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;}
+.gbtn{background:none;border:1px solid var(--c4);border-radius:10px;padding:10px 14px;color:inherit;font-size:13px;cursor:pointer;font-family:inherit;transition:border-color 0.2s;width:100%;margin-bottom:8px;}
+.gbtn:hover{border-color:var(--c2);}
+.dbtn{background:none;border:1px solid #f87171;border-radius:10px;padding:10px 14px;color:#f87171;font-size:13px;cursor:pointer;font-family:inherit;width:100%;}
+.note{font-size:11px;color:var(--c7);text-align:center;margin-top:10px;}
+.cibtn{width:100%;padding:14px;background:linear-gradient(135deg,var(--c1),var(--c2));border:none;border-radius:12px;cursor:pointer;font-size:15px;font-weight:700;color:#fff;font-family:inherit;letter-spacing:1px;}
+.cibtn:disabled{background:var(--c4);color:var(--c7);cursor:not-allowed;}
+.dd{display:flex;gap:6px;margin-top:12px;justify-content:center;flex-wrap:wrap;}
+.dot{width:36px;height:36px;border-radius:50%;border:1px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--c8);}
+.dot.done{background:linear-gradient(135deg,var(--c1),var(--c2));border:none;color:#fff;}
+.dot.today{border-color:var(--c2);color:var(--c2);}
+.rrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--c5);}
+.rrow:last-child{border-bottom:none;}
+.rico{width:42px;height:42px;border-radius:12px;background:var(--c6);border:1px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.rinfo{flex:1;}
+.rn{font-size:14px;font-weight:500;}
+.rc{font-size:11px;color:var(--coin);margin-top:2px;}
+.buybtn{background:none;border:1px solid var(--coin);border-radius:8px;padding:6px 12px;color:var(--coin);font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;white-space:nowrap;transition:all 0.2s;}
+.buybtn:hover{background:var(--coin);color:#0a0a12;}
+.buybtn:disabled{border-color:var(--c4);color:var(--c7);cursor:not-allowed;}
+.buybtn:disabled:hover{background:none;color:var(--c7);}
+.skin-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.scard{border-radius:12px;padding:14px;cursor:pointer;border:2px solid transparent;transition:border-color 0.2s;position:relative;}
+.scard.active{border-color:rgba(255,255,255,0.8);}
+.sname{font-size:13px;font-weight:600;color:#fff;}
+.ssub{font-size:11px;color:rgba(255,255,255,0.7);margin-top:2px;}
+.schk{position:absolute;top:8px;right:10px;font-size:14px;color:#fff;}
+.cr-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--c5);}
+.cr-row:last-child{border-bottom:none;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem;}
+.modal{background:var(--c3);border:1px solid var(--c4);border-radius:20px;padding:1.5rem;width:100%;max-width:380px;}
+.modal h3{font-size:16px;font-weight:700;margin-bottom:16px;}
+.mrow{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
+.mrow label{font-size:12px;color:var(--c8);}
+.mactions{display:flex;gap:8px;margin-top:16px;}
+.mactions button{flex:1;}
+.toast{position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-120px);background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff;padding:12px 24px;border-radius:999px;font-size:14px;font-weight:700;white-space:nowrap;z-index:300;transition:transform 0.4s cubic-bezier(.34,1.56,.64,1);text-align:center;max-width:90vw;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.gain{position:fixed;top:38%;left:50%;transform:translate(-50%,-50%);font-size:24px;font-weight:800;pointer-events:none;animation:gp 1.3s ease forwards;z-index:150;}
+.gain.exp{color:var(--c2);}
+.gain.coin{color:var(--coin);}
+@keyframes gp{0%{opacity:1;transform:translate(-50%,-50%) scale(0.7);}30%{opacity:1;transform:translate(-50%,-65%) scale(1.1);}100%{opacity:0;transform:translate(-50%,-100%) scale(1);}}
+.day-pick{display:flex;align-items:center;gap:4px;font-size:13px;cursor:pointer;padding:5px 10px;border:1px solid var(--c4);border-radius:8px;color:var(--c8);transition:all 0.2s;}
+.day-pick:has(input:checked){border-color:var(--c2);color:var(--c2);background:var(--c5);}
+.day-pick input{display:none;}
+.freq-badge{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--c5);color:var(--c7);margin-left:4px;}
+.page{display:none;}
+.page.active{display:block;}
+#pw-screen{position:fixed;inset:0;background:#0a0a12;z-index:999;display:flex;align-items:center;justify-content:center;padding:2rem;}
 </style>
 </head>
-<body>
-<div class="app">
+<body class="t-dark">
+
+<!-- PASSWORD SCREEN -->
+<div id="pw-screen">
+  <div style="max-width:300px;width:100%;text-align:center;">
+    <div style="font-size:44px;margin-bottom:16px;">👑</div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:6px;">冒险者日志</div>
+    <div style="font-size:11px;color:#6b6880;letter-spacing:2px;margin-bottom:28px;">ADVENTURER'S LOG</div>
+    <input id="pw-input" type="password" placeholder="请输入密码..."
+      style="width:100%;background:#17151f;border:1px solid #2a2740;border-radius:12px;padding:12px 16px;font-size:15px;color:#e8e6f0;outline:none;text-align:center;font-family:inherit;margin-bottom:10px;" />
+    <div id="pw-err" style="font-size:12px;color:#f87171;height:18px;margin-bottom:8px;"></div>
+    <button onclick="checkPw()" style="width:100%;background:linear-gradient(135deg,#7c3aed,#a78bfa);border:none;border-radius:12px;padding:13px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;">进入</button>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="app" id="main-app">
   <div class="toast" id="toast"></div>
 
   <!-- HOME -->
-  <div class="page active" id="page-home">
-    <div class="page-header">
-      <div class="page-title">冒险者日志</div>
-      <div class="coins-display">⚡ <span id="coins-h">0</span> 灵石</div>
-    </div>
+  <div class="page active" id="p-home">
+    <div class="ph"><div class="pt">冒险者日志</div><div class="cd">⚡ <span id="co-h">0</span> 皇帝币</div></div>
     <div class="panel">
-      <div class="char-top">
-        <div class="avatar">小</div>
+      <div style="display:flex;align-items:center;gap:14px;margin-bottom:16px;">
+        <div class="avatar" id="avatar" onclick="openModal('name-modal')">小</div>
         <div>
-          <div class="char-name">小林</div>
-          <div class="char-title-el" id="char-title">初入江湖的少女</div>
-          <div class="char-level">Lv.<span id="lv-num">1</span> &nbsp;·&nbsp; 总计 <span id="total-exp">0</span> EXP</div>
+          <div class="char-name" id="char-name" onclick="openModal('name-modal')">冒险者</div>
+          <div class="hint">点击名字修改</div>
+          <div class="char-title" id="char-title">初入江湖的少女</div>
+          <div class="char-lv">Lv.<span id="lv">1</span> · 总计 <span id="texp">0</span> EXP</div>
         </div>
       </div>
-      <div class="exp-label"><span>经验值</span><span><span id="cur-exp">0</span> / <span id="max-exp">100</span></span></div>
-      <div class="exp-track"><div class="exp-fill" id="exp-fill" style="width:0%"></div></div>
+      <div class="exp-lbl"><span>经验值</span><span><span id="cexp">0</span> / <span id="mexp">100</span></span></div>
+      <div class="exp-track"><div class="exp-fill" id="expbar" style="width:0%"></div></div>
       <div class="stats">
-        <div class="stat"><div class="stat-num" id="done-count">0</div><div class="stat-label">今日完成</div></div>
-        <div class="stat"><div class="stat-num" id="left-count">0</div><div class="stat-label">待完成</div></div>
-        <div class="stat"><div class="stat-num" id="streak-num">0</div><div class="stat-label">连续签到</div></div>
+        <div class="stat"><div class="sn" id="s-done">0</div><div class="sl">今日完成</div></div>
+        <div class="stat"><div class="sn" id="s-left">0</div><div class="sl">待完成</div></div>
+        <div class="stat"><div class="sn" id="s-streak">0</div><div class="sl">连续签到</div></div>
       </div>
     </div>
     <div class="panel">
-      <div class="section-title">今日副本</div>
+      <div class="sec">今日副本</div>
       <div id="task-list"></div>
     </div>
     <div class="panel">
-      <div class="section-title">添加任务</div>
-      <div class="add-area">
-        <input type="text" id="new-input" placeholder="输入任务名称..." />
-        <button id="add-btn">添加</button>
+      <div class="sec">添加任务</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input class="sinput" id="new-task" placeholder="任务名称..." />
+        <div style="display:flex;gap:8px;">
+          <select class="sinput" id="new-cat" style="flex:1;" onchange="toggleCustomCat('new-custom-cat',this.value)">
+            <option value="日常副本">日常副本</option>
+            <option value="限时副本">限时副本</option>
+            <option value="野外副本">野外副本</option>
+            <option value="金钱副本">金钱副本</option>
+            <option value="知识副本">知识副本</option>
+            <option value="惊喜副本">惊喜副本</option>
+            <option value="自定义">自定义输入...</option>
+          </select>
+        <input class="sinput" id="new-custom-cat" placeholder="输入自定义分类名..." style="display:none;" />
+          <select class="sinput" id="new-freq" style="flex:1;" onchange="toggleWeekPicker('new-week-picker',this.value)">
+            <option value="daily">每日</option>
+            <option value="once">单次</option>
+            <option value="weekly">每周</option>
+          </select>
+        </div>
+        <div id="new-week-picker" style="display:none;">
+          <div style="font-size:11px;color:var(--c8);margin-bottom:6px;">选择哪几天出现：</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <label class="day-pick"><input type="checkbox" value="0" /> 周一</label>
+            <label class="day-pick"><input type="checkbox" value="1" /> 周二</label>
+            <label class="day-pick"><input type="checkbox" value="2" /> 周三</label>
+            <label class="day-pick"><input type="checkbox" value="3" /> 周四</label>
+            <label class="day-pick"><input type="checkbox" value="4" /> 周五</label>
+            <label class="day-pick"><input type="checkbox" value="5" /> 周六</label>
+            <label class="day-pick"><input type="checkbox" value="6" /> 周日</label>
+          </div>
+        </div>
+        <button class="pbtn" id="btn-add-task">添加</button>
       </div>
-      <div class="note">每日 00:00 任务自动重置 · 等级与灵石永久保留</div>
+      <div class="note">每日00:00重置 · 等级与皇帝币永久保留</div>
     </div>
   </div>
 
   <!-- CHECKIN -->
-  <div class="page" id="page-checkin">
-    <div class="page-header">
-      <div class="page-title">每日签到</div>
-      <div class="coins-display">⚡ <span id="coins-c">0</span> 灵石</div>
-    </div>
+  <div class="page" id="p-checkin">
+    <div class="ph"><div class="pt">每日签到</div><div class="cd">⚡ <span id="co-c">0</span> 皇帝币</div></div>
     <div class="panel">
-      <div class="section-title">本周进度</div>
-      <div class="checkin-days" id="checkin-days"></div>
-      <div style="margin-top:18px;">
-        <button class="checkin-btn" id="checkin-btn">签到领取奖励</button>
-      </div>
-      <div class="checkin-streak">
-        🔥 已连续签到 <strong id="streak-label" style="color:#f97316;margin:0 4px;">0</strong> 天
+      <div class="sec">本周进度</div>
+      <div class="dd" id="week-dots"></div>
+      <div style="margin-top:18px;"><button class="cibtn" id="btn-checkin">签到领取奖励</button></div>
+      <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:10px;font-size:12px;color:var(--c8);">
+        🔥 已连续签到 <strong id="streak-lbl" style="color:#f97316;margin:0 4px;">0</strong> 天
       </div>
     </div>
     <div class="panel">
-      <div class="section-title">签到奖励一览</div>
-      <div class="checkin-rewards-grid">
-        <div class="cr-row">
-          <div class="cr-icon">📅</div>
-          <div class="cr-info"><div class="cr-name">基础签到</div><div class="cr-sub">每日都有</div></div>
-          <div class="cr-rewards"><div class="exp-badge">+30 EXP</div><div class="coin-badge">+20 灵石</div></div>
-        </div>
-        <div class="cr-row">
-          <div class="cr-icon">⚡</div>
-          <div class="cr-info"><div class="cr-name">连续 3 天</div><div class="cr-sub">坚持就是胜利</div></div>
-          <div class="cr-rewards"><div class="exp-badge">+50 EXP</div><div class="coin-badge">+30 灵石</div></div>
-        </div>
-        <div class="cr-row">
-          <div class="cr-icon">👑</div>
-          <div class="cr-info"><div class="cr-name">连续 7 天</div><div class="cr-sub">女王级待遇</div></div>
-          <div class="cr-rewards"><div class="exp-badge">+120 EXP</div><div class="coin-badge">+80 灵石</div></div>
-        </div>
-      </div>
+      <div class="sec">签到奖励</div>
+      <div class="cr-row"><div style="font-size:22px;width:36px;text-align:center;">📅</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">基础签到</div><div style="font-size:11px;color:var(--c7);">每日都有</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;"><div class="eb">+30 EXP</div><div class="cb">+20 皇帝币</div></div></div>
+      <div class="cr-row"><div style="font-size:22px;width:36px;text-align:center;">⚡</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">连续3天</div><div style="font-size:11px;color:var(--c7);">额外加成</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;"><div class="eb">+50 EXP</div><div class="cb">+30 皇帝币</div></div></div>
+      <div class="cr-row"><div style="font-size:22px;width:36px;text-align:center;">👑</div><div style="flex:1;"><div style="font-size:13px;font-weight:500;">连续7天</div><div style="font-size:11px;color:var(--c7);">女王级大奖</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:2px;"><div class="eb">+120 EXP</div><div class="cb">+80 皇帝币</div></div></div>
     </div>
   </div>
 
   <!-- SHOP -->
-  <div class="page" id="page-shop">
-    <div class="page-header">
-      <div class="page-title">灵石商店</div>
-      <div class="coins-display">⚡ <span id="coins-s">0</span> 灵石</div>
-    </div>
+  <div class="page" id="p-shop">
+    <div class="ph"><div class="pt">皇帝币商店</div><div class="cd">⚡ <span id="co-s">0</span> 皇帝币</div></div>
     <div class="panel">
-      <div class="section-title">犒劳自己</div>
+      <div class="sec">犒劳自己</div>
       <div id="shop-list"></div>
     </div>
     <div class="panel">
-      <div class="section-title">添加奖励</div>
-      <div class="add-reward-area">
-        <input type="text" id="reward-name" placeholder="奖励名称，如：喝奶茶" />
-        <input type="number" id="reward-cost" placeholder="灵石" min="1" style="width:80px;flex:none;" />
-        <button id="add-reward-btn">添加</button>
+      <div class="sec">添加奖励</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input class="sinput" id="new-reward-name" placeholder="奖励名称，如：喝奶茶..." />
+        <div style="display:flex;gap:8px;">
+          <input class="sinput" type="number" id="new-reward-cost" placeholder="皇帝币价格" min="1" style="width:130px;flex:none;" />
+          <button class="pbtn" id="btn-add-reward">添加</button>
+        </div>
       </div>
-      <div class="note" style="margin-top:8px;">完成任务和签到赚取灵石，花完不清零</div>
+    </div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div class="page" id="p-settings">
+    <div class="ph"><div class="pt">设置</div><div class="cd">⚡ <span id="co-p">0</span> 皇帝币</div></div>
+    <div class="panel">
+      <div class="sec">皮肤主题</div>
+      <div class="skin-grid">
+        <div class="scard active" id="sc-dark" style="background:linear-gradient(135deg,#7c3aed,#a78bfa);" onclick="setSkin('dark')">
+          <div class="sname">星空紫</div><div class="ssub">默认</div><div class="schk" id="sk-dark">✓</div>
+        </div>
+        <div class="scard" id="sc-pink" style="background:linear-gradient(135deg,#c0609a,#f0a8d0);" onclick="setSkin('pink')">
+          <div class="sname">浅樱粉</div><div class="ssub">柔美少女</div><div class="schk" id="sk-pink" style="display:none">✓</div>
+        </div>
+        <div class="scard" id="sc-blue" style="background:linear-gradient(135deg,#1a6fa8,#60c0f0);" onclick="setSkin('blue')">
+          <div class="sname">天空蓝</div><div class="ssub">清透梦幻</div><div class="schk" id="sk-blue" style="display:none">✓</div>
+        </div>
+        <div class="scard" id="sc-green" style="background:linear-gradient(135deg,#1a8040,#50d080);" onclick="setSkin('green')">
+          <div class="sname">翠玉绿</div><div class="ssub">清新自然</div><div class="schk" id="sk-green" style="display:none">✓</div>
+        </div>
+        <div class="scard" id="sc-gold" style="background:linear-gradient(135deg,#b05010,#f0b030);" onclick="setSkin('gold')">
+          <div class="sname">帝王金</div><div class="ssub">统治者专属</div><div class="schk" id="sk-gold" style="display:none">✓</div>
+        </div>
+        <div class="scard" id="sc-custom" style="background:linear-gradient(135deg,#555,#999);" onclick="setSkin('custom')">
+          <div class="sname">自定义</div><div class="ssub">选你的色</div><div class="schk" id="sk-custom" style="display:none">✓</div>
+        </div>
+      </div>
+      <div id="color-picker-area" style="display:none;margin-top:16px;padding-top:16px;border-top:1px solid var(--c5);">
+        <div style="font-size:12px;color:var(--c8);margin-bottom:10px;">选择主题色</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <input type="color" id="color-picker" value="#7c3aed"
+            style="width:50px;height:50px;border:none;border-radius:12px;cursor:pointer;padding:2px;background:var(--c6);" />
+          <div>
+            <div style="font-size:13px;">拖动或点击选色</div>
+            <div style="font-size:11px;color:var(--c8);margin-top:2px;">主色调自动生成配套颜色</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="sec">账号管理</div>
+      <button class="gbtn" onclick="openModal('name-modal')">✏️ 修改名字</button>
+      <button class="gbtn" onclick="exportSave()">📦 导出存档</button>
+      <button class="gbtn" onclick="document.getElementById('import-file').click()">📂 导入存档</button>
+      <input type="file" id="import-file" accept=".json" style="display:none;" />
+      <button class="dbtn" onclick="openModal('reset-modal')">⚠️ 重置所有数据</button>
+      <div class="note">重置后等级、皇帝币、任务全部清空</div>
     </div>
   </div>
 
   <nav class="nav">
-    <button class="nav-btn active" onclick="switchPage('home',this)">
-      <div class="nav-icon">⚔️</div><div class="nav-label">副本</div>
-    </button>
-    <button class="nav-btn" onclick="switchPage('checkin',this)">
-      <div class="nav-icon">📅</div><div class="nav-label">签到</div>
-    </button>
-    <button class="nav-btn" onclick="switchPage('shop',this)">
-      <div class="nav-icon">🛒</div><div class="nav-label">商店</div>
-    </button>
+    <button class="nav-btn active" id="nb-home" onclick="goPage('home')"><div class="nav-icon">⚔️</div><div class="nav-label">副本</div></button>
+    <button class="nav-btn" id="nb-checkin" onclick="goPage('checkin')"><div class="nav-icon">📅</div><div class="nav-label">签到</div></button>
+    <button class="nav-btn" id="nb-shop" onclick="goPage('shop')"><div class="nav-icon">🛒</div><div class="nav-label">商店</div></button>
+    <button class="nav-btn" id="nb-settings" onclick="goPage('settings')"><div class="nav-icon">⚙️</div><div class="nav-label">设置</div></button>
   </nav>
 </div>
 
-<script>
-const TITLES = [
-  '初入江湖的少女','崭露头角的新星','锋芒毕露的勇者',
-  '威震四方的猛将','叱咤风云的霸主','傲视群雄的女王',
-  '天下无双的帝将','九五至尊的女皇','凌驾天地的神明','万界至尊的统治者'
-];
-const EXP_TABLE = [100,250,450,700,1050,1500,2100,2900,4000,6000];
-function expForLevel(lv){ return EXP_TABLE[Math.min(lv-1,EXP_TABLE.length-1)]; }
-function getTitle(lv){ return TITLES[Math.min(lv-1,TITLES.length-1)]; }
+<!-- MODALS -->
+<div class="modal-bg" id="name-modal" style="display:none;">
+  <div class="modal">
+    <h3>修改名字</h3>
+    <div class="mrow"><label>你的名字（最多6字）</label><input class="sinput" id="inp-name" maxlength="6" placeholder="输入名字..." /></div>
+    <div class="mactions"><button class="gbtn" style="margin:0;" onclick="closeModal('name-modal')">取消</button><button class="pbtn" onclick="saveName()">保存</button></div>
+  </div>
+</div>
 
+<div class="modal-bg" id="task-modal" style="display:none;">
+  <div class="modal">
+    <h3>编辑任务</h3>
+    <input type="hidden" id="edit-tid" />
+    <div class="mrow"><label>任务名称</label><input class="sinput" id="edit-tname" /></div>
+    <div class="mrow"><label>EXP奖励</label><input class="sinput" type="number" id="edit-texp" min="1" /></div>
+    <div class="mrow"><label>皇帝币奖励</label><input class="sinput" type="number" id="edit-tcoins" min="1" /></div>
+    <div class="mrow">
+      <label>副本分类</label>
+      <select class="sinput" id="edit-tcat" onchange="toggleCustomCat('edit-custom-cat',this.value)">
+        <option value="日常副本">日常副本</option>
+        <option value="限时副本">限时副本</option>
+        <option value="野外副本">野外副本</option>
+        <option value="金钱副本">金钱副本</option>
+        <option value="知识副本">知识副本</option>
+        <option value="惊喜副本">惊喜副本</option>
+        <option value="自定义">自定义输入...</option>
+      </select>
+      <input class="sinput" id="edit-custom-cat" placeholder="输入自定义分类名..." style="display:none;margin-top:6px;" />
+    </div>
+    <div class="mrow">
+      <label>出现频率</label>
+      <select class="sinput" id="edit-tfreq" onchange="toggleWeekPicker('edit-week-picker',this.value)">
+        <option value="daily">每日</option>
+        <option value="once">单次（完成后消失）</option>
+        <option value="weekly">每周指定天</option>
+      </select>
+    </div>
+    <div id="edit-week-picker" style="display:none;">
+      <div style="font-size:11px;color:var(--c8);margin-bottom:6px;">选择哪几天出现：</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <label class="day-pick"><input type="checkbox" value="0" /> 周一</label>
+        <label class="day-pick"><input type="checkbox" value="1" /> 周二</label>
+        <label class="day-pick"><input type="checkbox" value="2" /> 周三</label>
+        <label class="day-pick"><input type="checkbox" value="3" /> 周四</label>
+        <label class="day-pick"><input type="checkbox" value="4" /> 周五</label>
+        <label class="day-pick"><input type="checkbox" value="5" /> 周六</label>
+        <label class="day-pick"><input type="checkbox" value="6" /> 周日</label>
+      </div>
+    </div>
+    <div class="mactions"><button class="dbtn" style="width:auto;padding:10px 16px;" onclick="deleteTask()">删除</button><button class="gbtn" style="margin:0;" onclick="closeModal('task-modal')">取消</button><button class="pbtn" onclick="saveTaskEdit()">保存</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="reward-modal" style="display:none;">
+  <div class="modal">
+    <h3>编辑奖励</h3>
+    <input type="hidden" id="edit-rid" />
+    <div class="mrow"><label>奖励名称</label><input class="sinput" id="edit-rname" /></div>
+    <div class="mrow"><label>皇帝币价格</label><input class="sinput" type="number" id="edit-rcost" min="1" /></div>
+    <div class="mactions"><button class="dbtn" style="width:auto;padding:10px 16px;" onclick="deleteReward()">删除</button><button class="gbtn" style="margin:0;" onclick="closeModal('reward-modal')">取消</button><button class="pbtn" onclick="saveRewardEdit()">保存</button></div>
+  </div>
+</div>
+
+<div class="modal-bg" id="reset-modal" style="display:none;">
+  <div class="modal">
+    <h3>⚠️ 危险操作</h3>
+    <p style="font-size:13px;color:var(--c8);margin-bottom:16px;line-height:1.6;">清空所有数据无法撤销！<br>请输入 <strong style="color:#f87171;">确认重置</strong> 继续：</p>
+    <div class="mrow"><input class="sinput" id="reset-inp" placeholder="输入：确认重置" /></div>
+    <div class="mactions"><button class="gbtn" style="margin:0;" onclick="closeModal('reset-modal')">取消</button><button class="dbtn" style="width:auto;padding:10px 16px;" onclick="doReset()">清空</button></div>
+  </div>
+</div>
+
+<script>
+// ── CONSTANTS ─────────────────────────────────────
+const PW = 'linlin000';
+const SK = 'xlin-final'; // 永远不改这个key
+const TITLES = ['浮梦初醒','孤城暗涌','星海漂泊','椿词爵士','浪漫偏航','深渊之上','梦魇独裁','执掌八方','一步之遥','此间唯我'];
+const EXP_TABLE = [100,250,450,700,1050,1500,2100,2900,4000,6000];
 const DEFAULT_TASKS = [
   {id:1,name:'准时起床',exp:20,coins:10,category:'作息',custom:false},
   {id:2,name:'吃早饭',exp:15,coins:8,category:'饮食',custom:false},
-  {id:3,name:'学习 1 小时',exp:50,coins:25,category:'学业',custom:false},
-  {id:4,name:'喝够 8 杯水',exp:10,coins:5,category:'健康',custom:false},
-  {id:5,name:'运动 30 分钟',exp:40,coins:20,category:'健康',custom:false},
+  {id:3,name:'学习1小时',exp:50,coins:25,category:'学业',custom:false},
+  {id:4,name:'喝够8杯水',exp:10,coins:5,category:'健康',custom:false},
+  {id:5,name:'运动30分钟',exp:40,coins:20,category:'健康',custom:false},
   {id:6,name:'整理房间',exp:20,coins:10,category:'生活',custom:false},
   {id:7,name:'好好吃晚饭',exp:15,coins:8,category:'饮食',custom:false},
   {id:8,name:'按时睡觉',exp:30,coins:15,category:'作息',custom:false},
 ];
 const DEFAULT_REWARDS = [
-  {id:1,name:'喝一杯奶茶',icon:'🧋',cost:80,custom:false},
-  {id:2,name:'看一集剧',icon:'🎬',cost:50,custom:false},
-  {id:3,name:'刷一小时小红书',icon:'📱',cost:40,custom:false},
-  {id:4,name:'买一件小东西',icon:'🛍️',cost:150,custom:false},
-  {id:5,name:'睡个懒觉',icon:'😴',cost:60,custom:false},
+  {id:1,name:'喝一杯奶茶',icon:'🧋',cost:80},
+  {id:2,name:'看一集剧',icon:'🎬',cost:50},
+  {id:3,name:'刷一小时小红书',icon:'📱',cost:40},
+  {id:4,name:'买一件小东西',icon:'🛍️',cost:150},
+  {id:5,name:'睡个懒觉',icon:'😴',cost:60},
 ];
 
-let char={level:1,exp:0,totalExp:0,coins:0};
-let tasks=[], rewards=[];
-let checkinData={lastDate:'',streak:0,weekDays:[]};
+// ── STATE ─────────────────────────────────────────
+let char = {level:1,exp:0,totalExp:0,coins:0,name:'冒险者',customColor:'#7c3aed'};
+let tasks = [], rewards = [], checkin = {lastDate:'',streak:0,weekDays:[]};
+let skin = 'dark';
 
-function save(){
-  localStorage.setItem('xlin3-char',JSON.stringify(char));
-  localStorage.setItem('xlin3-tasks',JSON.stringify(tasks));
-  localStorage.setItem('xlin3-rewards',JSON.stringify(rewards));
-  localStorage.setItem('xlin3-checkin',JSON.stringify(checkinData));
-  localStorage.setItem('xlin3-date',new Date().toDateString());
+// ── STORAGE ───────────────────────────────────────
+function save() {
+  localStorage.setItem(SK+'-char', JSON.stringify(char));
+  localStorage.setItem(SK+'-tasks', JSON.stringify(tasks));
+  localStorage.setItem(SK+'-rewards', JSON.stringify(rewards));
+  localStorage.setItem(SK+'-checkin', JSON.stringify(checkin));
+  localStorage.setItem(SK+'-skin', skin);
+  localStorage.setItem(SK+'-date', new Date().toDateString());
 }
-function load(){
-  try{
-    const today=new Date().toDateString();
-    const savedDate=localStorage.getItem('xlin3-date')||'';
-    const sc=localStorage.getItem('xlin3-char');
-    const st=localStorage.getItem('xlin3-tasks');
-    const sr=localStorage.getItem('xlin3-rewards');
-    const sd=localStorage.getItem('xlin3-checkin');
-    if(sc) char=JSON.parse(sc);
-    if(sr) rewards=JSON.parse(sr); else rewards=JSON.parse(JSON.stringify(DEFAULT_REWARDS));
-    if(sd) checkinData=JSON.parse(sd); if(!checkinData.weekDays) checkinData.weekDays=[];
-    if(st){
-      tasks=JSON.parse(st);
-      if(savedDate!==today) tasks=tasks.map(t=>({...t,completed:false}));
-    } else { tasks=DEFAULT_TASKS.map(t=>({...t,completed:false})); }
-  }catch(e){
-    tasks=DEFAULT_TASKS.map(t=>({...t,completed:false}));
-    rewards=JSON.parse(JSON.stringify(DEFAULT_REWARDS));
+
+function load() {
+  try {
+    const today = new Date().toDateString();
+    const savedDate = localStorage.getItem(SK+'-date') || '';
+    const sc = localStorage.getItem(SK+'-char');
+    const st = localStorage.getItem(SK+'-tasks');
+    const sr = localStorage.getItem(SK+'-rewards');
+    const sd = localStorage.getItem(SK+'-checkin');
+    const ss = localStorage.getItem(SK+'-skin');
+    if (sc) char = {...char, ...JSON.parse(sc)};
+    if (sr) { const p = JSON.parse(sr); rewards = p.length ? p : [...DEFAULT_REWARDS.map(r=>({...r}))]; }
+    else rewards = DEFAULT_REWARDS.map(r=>({...r}));
+    if (sd) { checkin = JSON.parse(sd); if (!checkin.weekDays) checkin.weekDays = []; }
+    if (st) {
+      const p = JSON.parse(st);
+      tasks = p.length ? (savedDate !== today ? p.map(t=>({...t,completed:false})) : p) : DEFAULT_TASKS.map(t=>({...t,completed:false}));
+    } else tasks = DEFAULT_TASKS.map(t=>({...t,completed:false}));
+    if (ss) { skin = ss; applySkin(ss); }
+  } catch(e) {
+    tasks = DEFAULT_TASKS.map(t=>({...t,completed:false}));
+    rewards = DEFAULT_REWARDS.map(r=>({...r}));
   }
 }
 
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
-}
-function showGain(text,type){
-  const el=document.createElement('div');
-  el.className='gain '+type; el.textContent=text;
-  document.body.appendChild(el);
-  setTimeout(()=>el.remove(),1300);
-}
-function updateCoins(){
-  ['h','c','s'].forEach(id=>{
-    const el=document.getElementById('coins-'+id);
-    if(el) el.textContent=char.coins;
-  });
-}
-
-function updateCharUI(){
-  const needed=expForLevel(char.level);
-  const pct=Math.min(Math.round(char.exp/needed*100),100);
-  document.getElementById('lv-num').textContent=char.level;
-  document.getElementById('char-title').textContent=getTitle(char.level);
-  document.getElementById('cur-exp').textContent=char.exp;
-  document.getElementById('max-exp').textContent=needed;
-  document.getElementById('total-exp').textContent=char.totalExp||0;
-  document.getElementById('exp-fill').style.width=pct+'%';
-  document.getElementById('streak-num').textContent=checkinData.streak||0;
-  const done=tasks.filter(t=>t.completed).length;
-  document.getElementById('done-count').textContent=done;
-  document.getElementById('left-count').textContent=tasks.length-done;
-  updateCoins();
-}
-
-function renderTasks(){
-  const list=document.getElementById('task-list');
-  list.innerHTML='';
-  tasks.forEach(task=>{
-    const row=document.createElement('div');
-    row.className='task-row'+(task.completed?' done':'');
-    row.innerHTML=`
-      <button class="check ${task.completed?'done':''}" data-id="${task.id}">${task.completed?'✓':''}</button>
-      <div class="task-info">
-        <div class="task-name">${task.name}</div>
-        <div class="task-meta">${task.category}</div>
-      </div>
-      <div class="task-rewards">
-        <div class="exp-badge">+${task.exp} EXP</div>
-        <div class="coin-badge">+${task.coins} 灵石</div>
-      </div>
-      ${task.custom?`<button class="remove-btn" data-rm="${task.id}">×</button>`:''}
-    `;
-    list.appendChild(row);
-  });
-  list.querySelectorAll('.check').forEach(btn=>btn.addEventListener('click',()=>toggleTask(Number(btn.dataset.id))));
-  list.querySelectorAll('.remove-btn').forEach(btn=>btn.addEventListener('click',()=>removeTask(Number(btn.dataset.rm))));
-}
-
-function addExp(amount,coins){
-  char.exp+=amount; char.totalExp=(char.totalExp||0)+amount; char.coins+=coins;
-  let leveled=false;
-  while(char.exp>=expForLevel(char.level)){ char.exp-=expForLevel(char.level); char.level++; leveled=true; }
-  if(leveled) setTimeout(()=>showToast('👑 LEVEL UP！升至 Lv.'+char.level+' · '+getTitle(char.level)),300);
-}
-
-function toggleTask(id){
-  const task=tasks.find(t=>t.id===id); if(!task) return;
-  if(!task.completed){
-    task.completed=true;
-    addExp(task.exp,task.coins);
-    showGain('+'+task.exp+' EXP','exp');
-    setTimeout(()=>showGain('+'+task.coins+' 灵石','coin'),400);
+// ── PASSWORD ──────────────────────────────────────
+function checkPw() {
+  const v = document.getElementById('pw-input').value;
+  if (v === PW) {
+    localStorage.setItem(SK+'-auth','1');
+    document.getElementById('pw-screen').style.display = 'none';
   } else {
-    task.completed=false;
-    char.exp=Math.max(0,char.exp-task.exp);
-    char.totalExp=Math.max(0,(char.totalExp||0)-task.exp);
-    char.coins=Math.max(0,char.coins-task.coins);
-  }
-  save(); updateCharUI(); renderTasks();
-}
-function removeTask(id){ tasks=tasks.filter(t=>t.id!==id); save(); updateCharUI(); renderTasks(); }
-function addTask(){
-  const input=document.getElementById('new-input');
-  const name=input.value.trim(); if(!name) return;
-  tasks.push({id:Date.now(),name,exp:30,coins:15,category:'自定义',custom:true,completed:false});
-  input.value=''; save(); updateCharUI(); renderTasks();
-}
-
-function renderCheckin(){
-  const today=new Date().toDateString();
-  const alreadyDone=checkinData.lastDate===today;
-  const btn=document.getElementById('checkin-btn');
-  btn.disabled=alreadyDone; btn.textContent=alreadyDone?'✓ 今日已签到':'签到领取奖励';
-  document.getElementById('streak-label').textContent=checkinData.streak||0;
-  const days=document.getElementById('checkin-days');
-  days.innerHTML='';
-  const labels=['一','二','三','四','五','六','日'];
-  const dayOfWeek=(new Date().getDay()+6)%7;
-  for(let i=0;i<7;i++){
-    const dot=document.createElement('div');
-    const isToday=i===dayOfWeek;
-    const isDone=(checkinData.weekDays||[]).includes(i);
-    dot.className='day-dot'+(isDone?' done':isToday?' today':'');
-    dot.textContent=isDone?'✓':labels[i];
-    days.appendChild(dot);
+    document.getElementById('pw-err').textContent = '密码不对哦，再试试～';
+    document.getElementById('pw-input').value = '';
   }
 }
+document.getElementById('pw-input').onkeydown = e => { if(e.key==='Enter') checkPw(); };
 
-function doCheckin(){
-  const today=new Date().toDateString();
-  if(checkinData.lastDate===today) return;
-  const yesterday=new Date(Date.now()-86400000).toDateString();
-  checkinData.streak=checkinData.lastDate===yesterday?(checkinData.streak||0)+1:1;
-  checkinData.lastDate=today;
-  const dayOfWeek=(new Date().getDay()+6)%7;
-  if(!checkinData.weekDays) checkinData.weekDays=[];
-  if(dayOfWeek===0) checkinData.weekDays=[];
-  if(!checkinData.weekDays.includes(dayOfWeek)) checkinData.weekDays.push(dayOfWeek);
-  let exp=30,coins=20,msg='📅 签到成功！继续加油！';
-  if(checkinData.streak>0&&checkinData.streak%7===0){exp=120;coins=80;msg='👑 连续7天！女王级奖励到手！';}
-  else if(checkinData.streak>0&&checkinData.streak%3===0){exp=50;coins=30;msg='⚡ 连续3天！额外加成已触发！';}
-  addExp(exp,coins);
-  showGain('+'+exp+' EXP','exp');
-  setTimeout(()=>showGain('+'+coins+' 灵石','coin'),400);
-  showToast(msg);
-  save(); updateCharUI(); renderCheckin();
+// ── THEME ─────────────────────────────────────────
+function applySkin(s) {
+  skin = s;
+  document.body.className = 't-' + s;
+  ['dark','pink','blue','green','gold','custom'].forEach(x => {
+    const chk = document.getElementById('sk-'+x);
+    const card = document.getElementById('sc-'+x);
+    if (chk) chk.style.display = x===s ? 'block' : 'none';
+    if (card) card.classList.toggle('active', x===s);
+  });
+  document.getElementById('color-picker-area').style.display = s==='custom' ? 'block' : 'none';
+  if (s === 'custom') applyCustomColor(char.customColor || '#7c3aed', false);
 }
 
-function renderShop(){
-  const list=document.getElementById('shop-list');
-  list.innerHTML='';
-  rewards.forEach(r=>{
-    const canAfford=char.coins>=r.cost;
-    const row=document.createElement('div');
-    row.className='reward-row';
-    row.innerHTML=`
-      <div class="reward-icon">${r.icon||'🎁'}</div>
-      <div class="reward-info">
-        <div class="reward-name">${r.name}</div>
-        <div class="reward-cost">⚡ ${r.cost} 灵石</div>
-      </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
-        <button class="buy-btn" data-rid="${r.id}" ${canAfford?'':'disabled'}>兑换</button>
-        ${r.custom?`<button class="remove-btn" data-rrm="${r.id}" style="font-size:16px;">×</button>`:''}
-      </div>
-    `;
+function setSkin(s) { applySkin(s); save(); }
+
+function applyCustomColor(hex, doSave=true) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  const h=n=>Math.min(255,n).toString(16).padStart(2,'0');
+  const c2 = '#'+h(r+80)+h(g+80)+h(b+80);
+  // Inject a <style> tag to override t-custom variables
+  let el = document.getElementById('custom-style');
+  if (!el) { el = document.createElement('style'); el.id='custom-style'; document.head.appendChild(el); }
+  el.textContent = `body.t-custom{--c1:${hex};--c2:${c2};}`;
+  // Update card
+  const card = document.getElementById('sc-custom');
+  if (card) card.style.background = `linear-gradient(135deg,${hex},${c2})`;
+  // Sync picker
+  const picker = document.getElementById('color-picker');
+  if (picker && picker.value !== hex) picker.value = hex;
+  if (doSave) { char.customColor = hex; save(); }
+}
+
+// ── UI UPDATE ─────────────────────────────────────
+function updateUI() {
+  const needed = EXP_TABLE[Math.min(char.level-1, EXP_TABLE.length-1)];
+  const pct = Math.min(Math.round(char.exp/needed*100),100);
+  document.getElementById('lv').textContent = char.level;
+  document.getElementById('char-title').textContent = TITLES[Math.min(char.level-1, TITLES.length-1)];
+  document.getElementById('cexp').textContent = char.exp;
+  document.getElementById('mexp').textContent = needed;
+  document.getElementById('texp').textContent = char.totalExp||0;
+  document.getElementById('expbar').style.width = pct+'%';
+  document.getElementById('s-streak').textContent = checkin.streak||0;
+  const done = tasks.filter(t=>t.completed).length;
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-left').textContent = tasks.length-done;
+  const name = char.name||'冒险者';
+  document.getElementById('char-name').textContent = name;
+  document.getElementById('avatar').textContent = name.charAt(0);
+  ['h','c','s','p'].forEach(id => { const el=document.getElementById('co-'+id); if(el) el.textContent=char.coins; });
+}
+
+// ── TASKS ─────────────────────────────────────────
+function isTaskVisible(task) {
+  const freq = task.frequency || 'daily';
+  if (freq === 'daily') return true;
+  if (freq === 'once') return !task.permanentDone;
+  if (freq === 'weekly') {
+    const today = (new Date().getDay()+6)%7; // 0=Mon
+    return (task.weekDays||[]).includes(today);
+  }
+  return true;
+}
+
+const FREQ_LABELS = {daily:'每日', once:'单次', weekly:'每周'};
+
+function renderTasks() {
+  const list = document.getElementById('task-list');
+  list.innerHTML = '';
+  const visible = tasks.filter(isTaskVisible);
+  if (visible.length === 0) {
+    list.innerHTML = '<div style="text-align:center;color:var(--c7);font-size:13px;padding:20px 0;">今天没有副本任务<br><span style="font-size:11px;">可以在下方添加任务</span></div>';
+    return;
+  }
+  visible.forEach(task => {
+    const freq = task.frequency||'daily';
+    const freqLabel = FREQ_LABELS[freq]||'每日';
+    const row = document.createElement('div');
+    row.className = 'task-row'+(task.completed?' done':'');
+    row.innerHTML =
+      `<button class="chk ${task.completed?'done':''}" data-id="${task.id}">${task.completed?'✓':''}</button>`+
+      `<div class="ti"><div class="tn">${task.name}</div><div class="tm">${task.category}<span class="freq-badge">${freqLabel}</span></div></div>`+
+      `<div class="tr"><div class="eb">+${task.exp} EXP</div><div class="cb">+${task.coins} 皇帝币</div></div>`+
+      `<button class="ibtn" data-eid="${task.id}">✏️</button>`;
     list.appendChild(row);
   });
-  list.querySelectorAll('.buy-btn:not(:disabled)').forEach(btn=>btn.addEventListener('click',()=>buyReward(Number(btn.dataset.rid))));
-  list.querySelectorAll('[data-rrm]').forEach(btn=>btn.addEventListener('click',()=>removeReward(Number(btn.dataset.rrm))));
+  list.querySelectorAll('.chk').forEach(b => b.onclick = () => toggleTask(+b.dataset.id));
+  list.querySelectorAll('[data-eid]').forEach(b => b.onclick = () => openTaskEdit(+b.dataset.eid));
 }
 
-function buyReward(id){
-  const r=rewards.find(x=>x.id===id); if(!r) return;
-  if(char.coins<r.cost){showToast('灵石不足！继续完成任务吧～');return;}
-  char.coins-=r.cost;
-  showToast('🎉 已兑换：'+r.name+'！好好享受～');
-  save(); updateCoins(); renderShop();
+function addExp(exp, coins) {
+  char.exp += exp; char.totalExp = (char.totalExp||0)+exp; char.coins += coins;
+  let up = false;
+  while (char.exp >= EXP_TABLE[Math.min(char.level-1,EXP_TABLE.length-1)]) {
+    char.exp -= EXP_TABLE[Math.min(char.level-1,EXP_TABLE.length-1)];
+    char.level++; up = true;
+  }
+  if (up) setTimeout(()=>showToast('👑 LEVEL UP！Lv.'+char.level+' · '+TITLES[Math.min(char.level-1,TITLES.length-1)]),300);
 }
-function removeReward(id){ rewards=rewards.filter(x=>x.id!==id); save(); renderShop(); }
-function addReward(){
-  const name=document.getElementById('reward-name').value.trim();
-  const cost=parseInt(document.getElementById('reward-cost').value)||50;
-  if(!name) return;
-  rewards.push({id:Date.now(),name,icon:'🎁',cost,custom:true});
-  document.getElementById('reward-name').value='';
-  document.getElementById('reward-cost').value='';
+
+function toggleTask(id) {
+  const t = tasks.find(x=>x.id===id); if(!t) return;
+  if (!t.completed) {
+    t.completed = true;
+    if ((t.frequency||'daily')==='once') t.permanentDone = true;
+    addExp(t.exp, t.coins);
+    showGain('+'+t.exp+' EXP','exp'); setTimeout(()=>showGain('+'+t.coins+' 皇帝币','coin'),400);
+    if (t.permanentDone) {
+      setTimeout(()=>{ showToast('✅ 单次任务完成！已从列表移除～'); renderTasks(); },800);
+    }
+  } else {
+    t.completed = false; t.permanentDone = false;
+    char.exp = Math.max(0,char.exp-t.exp);
+    char.totalExp = Math.max(0,(char.totalExp||0)-t.exp);
+    char.coins = Math.max(0,char.coins-t.coins);
+  }
+  save(); updateUI(); renderTasks();
+}
+
+function toggleWeekPicker(pickerId, freq) {
+  const el = document.getElementById(pickerId);
+  if (el) el.style.display = freq==='weekly' ? 'block' : 'none';
+}
+
+function toggleCustomCat(inputId, val) {
+  const el = document.getElementById(inputId);
+  if (el) { el.style.display = val==='自定义' ? 'block' : 'none'; if(val!=='自定义') el.value=''; }
+}
+
+function getCategoryValue(selectId, customInputId) {
+  const sel = document.getElementById(selectId).value;
+  if (sel === '自定义') {
+    const custom = document.getElementById(customInputId).value.trim();
+    return custom || '自定义';
+  }
+  return sel;
+}
+
+function getCheckedDays(pickerId) {
+  const boxes = document.querySelectorAll('#'+pickerId+' input[type=checkbox]');
+  return Array.from(boxes).filter(b=>b.checked).map(b=>+b.value);
+}
+
+function setCheckedDays(pickerId, days) {
+  const boxes = document.querySelectorAll('#'+pickerId+' input[type=checkbox]');
+  boxes.forEach(b => b.checked = (days||[]).includes(+b.value));
+}
+
+function addTask() {
+  const inp = document.getElementById('new-task');
+  const name = inp.value.trim(); if(!name) return;
+  const cat = getCategoryValue('new-cat','new-custom-cat');
+  const freq = document.getElementById('new-freq').value;
+  const weekDays = freq==='weekly' ? getCheckedDays('new-week-picker') : [];
+  tasks.push({id:Date.now(),name,exp:30,coins:15,category:cat,custom:true,completed:false,frequency:freq,weekDays});
+  inp.value='';
+  document.getElementById('new-freq').value='daily';
+  document.getElementById('new-cat').value='日常副本';
+  toggleCustomCat('new-custom-cat','日常副本');
+  toggleWeekPicker('new-week-picker','daily');
+  setCheckedDays('new-week-picker',[]);
+  save(); updateUI(); renderTasks();
+}
+
+function deleteTask() {
+  const id = +document.getElementById('edit-tid').value;
+  tasks = tasks.filter(x=>x.id!==id);
+  closeModal('task-modal'); save(); updateUI(); renderTasks();
+  showToast('🗑️ 任务已删除');
+}
+
+function openTaskEdit(id) {
+  const t = tasks.find(x=>x.id===id); if(!t) return;
+  document.getElementById('edit-tid').value = id;
+  document.getElementById('edit-tname').value = t.name;
+  document.getElementById('edit-texp').value = t.exp;
+  document.getElementById('edit-tcoins').value = t.coins;
+  const knownCats = ['日常副本','限时副本','野外副本','金钱副本','知识副本','惊喜副本'];
+  const isKnown = knownCats.includes(t.category);
+  document.getElementById('edit-tcat').value = isKnown ? t.category : '自定义';
+  const custEl = document.getElementById('edit-custom-cat');
+  if (!isKnown) { custEl.style.display='block'; custEl.value=t.category||''; }
+  else { custEl.style.display='none'; custEl.value=''; }
+  const freq = t.frequency||'daily';
+  document.getElementById('edit-tfreq').value = freq;
+  toggleWeekPicker('edit-week-picker', freq);
+  setCheckedDays('edit-week-picker', t.weekDays||[]);
+  openModal('task-modal');
+}
+function saveTaskEdit() {
+  const id = +document.getElementById('edit-tid').value;
+  const t = tasks.find(x=>x.id===id); if(!t) return;
+  t.name = document.getElementById('edit-tname').value.trim()||t.name;
+  t.exp = Math.max(1,+document.getElementById('edit-texp').value||t.exp);
+  t.coins = Math.max(1,+document.getElementById('edit-tcoins').value||t.coins);
+  t.category = getCategoryValue('edit-tcat','edit-custom-cat')||t.category;
+  t.frequency = document.getElementById('edit-tfreq').value||'daily';
+  t.weekDays = t.frequency==='weekly' ? getCheckedDays('edit-week-picker') : [];
+  closeModal('task-modal'); save(); renderTasks();
+}
+
+// ── CHECKIN ───────────────────────────────────────
+function renderCheckin() {
+  const today = new Date().toDateString();
+  const done = checkin.lastDate === today;
+  const btn = document.getElementById('btn-checkin');
+  btn.disabled = done; btn.textContent = done?'✓ 今日已签到':'签到领取奖励';
+  document.getElementById('streak-lbl').textContent = checkin.streak||0;
+  const dots = document.getElementById('week-dots');
+  dots.innerHTML = '';
+  const labels = ['一','二','三','四','五','六','日'];
+  const dow = (new Date().getDay()+6)%7;
+  for (let i=0;i<7;i++) {
+    const d = document.createElement('div');
+    const isDone = (checkin.weekDays||[]).includes(i);
+    d.className = 'dot'+(isDone?' done':i===dow?' today':'');
+    d.textContent = isDone?'✓':labels[i];
+    dots.appendChild(d);
+  }
+}
+
+function doCheckin() {
+  const today = new Date().toDateString();
+  if (checkin.lastDate===today) return;
+  const yest = new Date(Date.now()-86400000).toDateString();
+  checkin.streak = checkin.lastDate===yest ? (checkin.streak||0)+1 : 1;
+  checkin.lastDate = today;
+  const dow = (new Date().getDay()+6)%7;
+  if (!checkin.weekDays) checkin.weekDays=[];
+  if (dow===0) checkin.weekDays=[];
+  if (!checkin.weekDays.includes(dow)) checkin.weekDays.push(dow);
+  let exp=30,coins=20,msg='📅 签到成功！';
+  if (checkin.streak%7===0){exp=120;coins=80;msg='👑 连续7天！女王级奖励！';}
+  else if (checkin.streak%3===0){exp=50;coins=30;msg='⚡ 连续3天！额外加成！';}
+  addExp(exp,coins); showGain('+'+exp+' EXP','exp'); setTimeout(()=>showGain('+'+coins+' 皇帝币','coin'),400);
+  showToast(msg); save(); updateUI(); renderCheckin();
+}
+
+// ── SHOP ──────────────────────────────────────────
+function renderShop() {
+  const list = document.getElementById('shop-list');
+  list.innerHTML = '';
+  rewards.forEach(r => {
+    const can = char.coins >= r.cost;
+    const row = document.createElement('div');
+    row.className = 'rrow';
+    row.innerHTML =
+      `<div class="rico">${r.icon||'🎁'}</div>`+
+      `<div class="rinfo"><div class="rn">${r.name}</div><div class="rc">⚡ ${r.cost} 皇帝币</div></div>`+
+      `<div style="display:flex;gap:6px;align-items:center;">`+
+      `<button class="buybtn" data-rid="${r.id}" ${can?'':'disabled'}>兑换</button>`+
+      `<button class="ibtn" data-redit="${r.id}">✏️</button></div>`;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('.buybtn:not(:disabled)').forEach(b => b.onclick = ()=>buyReward(+b.dataset.rid));
+  list.querySelectorAll('[data-redit]').forEach(b => b.onclick = ()=>openRewardEdit(+b.dataset.redit));
+}
+
+function addReward() {
+  const name = document.getElementById('new-reward-name').value.trim();
+  const cost = +document.getElementById('new-reward-cost').value || 50;
+  if (!name) return;
+  rewards.push({id:Date.now(),name,icon:'🎁',cost});
+  document.getElementById('new-reward-name').value='';
+  document.getElementById('new-reward-cost').value='';
   save(); renderShop();
 }
 
-function switchPage(name,btn){
+function buyReward(id) {
+  const r = rewards.find(x=>x.id===id); if(!r) return;
+  if (char.coins<r.cost){showToast('皇帝币不足！继续完成任务吧～');return;}
+  char.coins -= r.cost; showToast('🎉 已兑换：'+r.name+'！好好享受～');
+  save(); updateUI(); renderShop();
+}
+
+function openRewardEdit(id) {
+  const r = rewards.find(x=>x.id===id); if(!r) return;
+  document.getElementById('edit-rid').value = id;
+  document.getElementById('edit-rname').value = r.name;
+  document.getElementById('edit-rcost').value = r.cost;
+  openModal('reward-modal');
+}
+function saveRewardEdit() {
+  const id = +document.getElementById('edit-rid').value;
+  const r = rewards.find(x=>x.id===id); if(!r) return;
+  r.name = document.getElementById('edit-rname').value.trim()||r.name;
+  r.cost = Math.max(1,+document.getElementById('edit-rcost').value||r.cost);
+  closeModal('reward-modal'); save(); renderShop();
+}
+function deleteReward() {
+  const id = +document.getElementById('edit-rid').value;
+  rewards = rewards.filter(x=>x.id!==id);
+  closeModal('reward-modal'); save(); renderShop();
+}
+
+// ── MODALS ────────────────────────────────────────
+function openModal(id) { document.getElementById(id).style.display='flex'; }
+function closeModal(id) { document.getElementById(id).style.display='none'; }
+function saveName() {
+  const v = document.getElementById('inp-name').value.trim(); if(!v) return;
+  char.name=v; closeModal('name-modal'); save(); updateUI();
+}
+function doReset() {
+  if (document.getElementById('reset-inp').value.trim()!=='确认重置'){showToast('请输入"确认重置"！');return;}
+  localStorage.clear(); location.reload();
+}
+
+// ── EXPORT/IMPORT ─────────────────────────────────
+function exportSave() {
+  const data = {char,tasks,rewards,checkin,skin,v:1};
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
+  a.download = '冒险者存档.json'; a.click();
+  showToast('📦 存档已导出！');
+}
+document.getElementById('import-file').onchange = function(e) {
+  const f = e.target.files[0]; if(!f) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const d = JSON.parse(ev.target.result);
+      if(d.char) char={...char,...d.char};
+      if(d.tasks&&d.tasks.length) tasks=d.tasks;
+      if(d.rewards&&d.rewards.length) rewards=d.rewards;
+      if(d.checkin) checkin=d.checkin;
+      if(d.skin) {skin=d.skin; applySkin(d.skin);}
+      save(); updateUI(); renderTasks(); renderShop(); renderCheckin();
+      showToast('✅ 存档导入成功！');
+    } catch(err){showToast('❌ 文件有误，导入失败');}
+  };
+  reader.readAsText(f); e.target.value='';
+};
+
+// ── NAVIGATION ────────────────────────────────────
+function goPage(name) {
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  document.getElementById('page-'+name).classList.add('active');
-  btn.classList.add('active');
+  document.getElementById('p-'+name).classList.add('active');
+  document.getElementById('nb-'+name).classList.add('active');
   if(name==='checkin') renderCheckin();
   if(name==='shop') renderShop();
 }
 
-load(); updateCharUI(); renderTasks(); renderCheckin();
-document.getElementById('add-btn').addEventListener('click',addTask);
-document.getElementById('new-input').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
-document.getElementById('checkin-btn').addEventListener('click',doCheckin);
-document.getElementById('add-reward-btn').addEventListener('click',addReward);
-document.getElementById('reward-name').addEventListener('keydown',e=>{if(e.key==='Enter')addReward();});
+// ── TOAST & GAIN ──────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+function showGain(text,type) {
+  const el = document.createElement('div');
+  el.className='gain '+type; el.textContent=text;
+  document.body.appendChild(el); setTimeout(()=>el.remove(),1300);
+}
+
+// ── BUTTON EVENTS ─────────────────────────────────
+document.getElementById('btn-add-task').onclick = addTask;
+document.getElementById('new-task').onkeydown = e => { if(e.key==='Enter') addTask(); };
+document.getElementById('btn-checkin').onclick = doCheckin;
+document.getElementById('btn-add-reward').onclick = addReward;
+document.getElementById('color-picker').oninput = e => applyCustomColor(e.target.value);
+
+// Close modals on backdrop click
+['name-modal','task-modal','reward-modal','reset-modal'].forEach(id=>{
+  document.getElementById(id).onclick = e => { if(e.target.id===id) closeModal(id); };
+});
+document.getElementById('inp-name').onkeydown = e => { if(e.key==='Enter') saveName(); };
+
+// ── INIT ──────────────────────────────────────────
+if (localStorage.getItem(SK+'-auth')==='1') {
+  document.getElementById('pw-screen').style.display = 'none';
+  load(); updateUI(); renderTasks(); renderShop(); renderCheckin();
+} else {
+  document.getElementById('pw-screen').style.display = 'flex';
+}
 </script>
 </body>
 </html>
