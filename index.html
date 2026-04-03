@@ -30,7 +30,7 @@ body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1
 .ph{padding:1.5rem 1rem 0.5rem;display:flex;align-items:center;justify-content:space-between;}
 .pt{font-size:11px;letter-spacing:3px;color:var(--c7);text-transform:uppercase;}
 .cd{display:flex;align-items:center;gap:6px;background:var(--c3);border:1px solid var(--c4);border-radius:999px;padding:6px 14px;font-size:13px;font-weight:600;color:var(--coin);}
-.panel{background:var(--c3);border:1px solid var(--c4);border-radius:16px;padding:1.25rem;margin:12px 1rem 0;}
+.panel{background:var(--c3);border:1px solid var(--c4);border-radius:20px;padding:1.25rem;margin:12px 1rem 0;box-shadow:0 2px 12px rgba(0,0,0,0.18);}
 .sec{font-size:11px;font-weight:700;color:var(--c8);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:8px;}
 .sec::after{content:'';flex:1;height:1px;background:var(--c5);}
 .avatar{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--c1),var(--c2));display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;color:#fff;flex-shrink:0;cursor:pointer;}
@@ -43,12 +43,14 @@ body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1
 .exp-track{height:7px;background:var(--c5);border-radius:4px;overflow:hidden;}
 .exp-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--c1),var(--c2));transition:width 0.8s;}
 .stats{display:flex;gap:8px;margin-top:14px;}
-.stat{flex:1;background:var(--c6);border:1px solid var(--c4);border-radius:10px;padding:10px 4px;text-align:center;}
+.stat{flex:1;background:var(--c6);border:1px solid var(--c4);border-radius:14px;padding:12px 4px;text-align:center;}
 .sn{font-size:18px;font-weight:700;line-height:1;}
 .sl{font-size:10px;color:var(--c8);margin-top:4px;}
-.task-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--c5);transition:opacity 0.3s;}
+.task-row{display:flex;align-items:center;gap:10px;padding:10px 6px;border-bottom:1px solid var(--c5);transition:opacity 0.3s,background 0.2s;border-radius:10px;}
 .task-row:last-child{border-bottom:none;}
+.task-row:hover{background:var(--c5);}
 .task-row.done{opacity:0.35;}
+.task-row.done:hover{background:transparent;}
 .chk{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--c4);background:transparent;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all 0.2s;color:transparent;font-size:12px;}
 .chk.done{border:none;background:linear-gradient(135deg,var(--c1),var(--c2));color:#fff;}
 .ti{flex:1;min-width:0;}
@@ -58,8 +60,8 @@ body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1
 .tr{display:flex;flex-direction:column;align-items:flex-end;gap:2px;flex-shrink:0;}
 .eb{font-size:11px;color:var(--c2);font-weight:600;white-space:nowrap;}
 .cb{font-size:11px;color:var(--coin);font-weight:600;white-space:nowrap;}
-.ibtn{background:none;border:none;cursor:pointer;color:var(--c7);font-size:16px;padding:0 3px;line-height:1;transition:color 0.2s;flex-shrink:0;}
-.ibtn:hover{color:var(--c2);}
+.ibtn{background:none;border:1px solid var(--c4);border-radius:8px;cursor:pointer;color:var(--c7);font-size:12px;padding:5px 9px;line-height:1;transition:all 0.2s;flex-shrink:0;display:inline-flex;align-items:center;gap:3px;}
+.ibtn:hover{color:var(--c2);border-color:var(--c2);background:var(--c5);}
 .add-row{display:flex;gap:8px;}
 .sinput{flex:1;background:var(--c6);border:1px solid var(--c4);border-radius:10px;padding:10px 14px;font-size:14px;color:inherit;outline:none;transition:border-color 0.2s;font-family:inherit;}
 .sinput::placeholder{color:var(--c7);}
@@ -77,7 +79,7 @@ body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1
 .dot.today{border-color:var(--c2);color:var(--c2);}
 .rrow{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--c5);}
 .rrow:last-child{border-bottom:none;}
-.rico{width:42px;height:42px;border-radius:12px;background:var(--c6);border:1px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.rico{width:44px;height:44px;border-radius:14px;background:var(--c6);border:1px solid var(--c4);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0;}
 .rinfo{flex:1;}
 .rn{font-size:14px;font-weight:500;}
 .rc{font-size:11px;color:var(--coin);margin-top:2px;}
@@ -94,7 +96,7 @@ body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1
 .cr-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--c5);}
 .cr-row:last-child{border-bottom:none;}
 .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:flex;align-items:center;justify-content:center;z-index:200;padding:1rem;}
-.modal{background:var(--c3);border:1px solid var(--c4);border-radius:20px;padding:1.5rem;width:100%;max-width:380px;}
+.modal{background:var(--c3);border:1px solid var(--c4);border-radius:24px;padding:1.5rem;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(0,0,0,0.5);}
 .modal h3{font-size:16px;font-weight:700;margin-bottom:16px;}
 .mrow{display:flex;flex-direction:column;gap:6px;margin-bottom:12px;}
 .mrow label{font-size:12px;color:var(--c8);}
@@ -355,6 +357,16 @@ body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1
   </div>
 </div>
 
+<div class="modal-bg" id="love-modal" style="display:none;">
+  <div class="modal" style="text-align:center;max-width:320px;">
+    <div style="font-size:36px;margin-bottom:8px;" id="love-emoji">💌</div>
+    <div style="font-size:13px;color:var(--c8);letter-spacing:2px;margin-bottom:14px;">老公想对你说</div>
+    <p id="love-msg" style="font-size:15px;line-height:1.8;color:var(--c2);font-weight:600;padding:0 4px;"></p>
+    <div style="margin-top:8px;font-size:11px;color:var(--c7);" id="love-streak-lbl"></div>
+    <button class="pbtn" style="width:100%;margin-top:20px;" onclick="closeModal('love-modal')">收到啦 ♡</button>
+  </div>
+</div>
+
 <div class="modal-bg" id="reset-modal" style="display:none;">
   <div class="modal">
     <h3>⚠️ 危险操作</h3>
@@ -380,6 +392,24 @@ const DEFAULT_TASKS = [
   {id:7,name:'好好吃晚饭',exp:15,coins:8,category:'饮食',custom:false},
   {id:8,name:'按时睡觉',exp:30,coins:15,category:'作息',custom:false},
 ];
+const LOVE_MSGS = [
+  '你已经连续坚持好几天了，老公真的好喜欢这么自律的你💕',
+  '看到你每天这么努力，老公心里暖暖的，继续加油哦～',
+  '你知道吗，你坚持的每一天，老公都看在眼里，为你骄傲✨',
+  '宝贝连续签到了，老公要偷偷奖励你一个大大的抱抱！',
+  '这么努力的你，一定是世界上最可爱的人🌸',
+  '老公觉得你真的很厉害，不是每个人都能像你这样坚持的',
+  '你的每一次努力，都让老公觉得遇见你真是太幸运了',
+  '看着你每天打卡，老公心里超级甜，你是老公的骄傲💝',
+  '连续坚持不容易，老公知道，所以老公比谁都更欣赏你',
+  '你今天的坚持，就是明天更好的自己，老公永远支持你～',
+  '宝贝好棒啊！老公想给你买好吃的犒劳你，你想要什么？',
+  '你比你想象中更强大，老公一直都知道，嘻嘻💫',
+  '每次看到你签到，老公就觉得好幸福，谢谢你这么努力',
+];
+const LOVE_EMOJIS_3 = ['💌','🌸','✨','💕','🎀'];
+const LOVE_EMOJIS_7 = ['👑','🏆','💎','🌟','🎊'];
+
 const DEFAULT_REWARDS = [
   {id:1,name:'喝一杯奶茶',icon:'🧋',cost:80},
   {id:2,name:'看一集剧',icon:'🎬',cost:50},
@@ -524,7 +554,7 @@ function renderTasks() {
       `<button class="chk ${task.completed?'done':''}" data-id="${task.id}">${task.completed?'✓':''}</button>`+
       `<div class="ti"><div class="tn">${task.name}</div><div class="tm">${task.category}<span class="freq-badge">${freqLabel}</span></div></div>`+
       `<div class="tr"><div class="eb">+${task.exp} EXP</div><div class="cb">+${task.coins} 皇帝币</div></div>`+
-      `<button class="ibtn" data-eid="${task.id}">✏️</button>`;
+      `<button class="ibtn" data-eid="${task.id}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>编辑</button>`;
     list.appendChild(row);
   });
   list.querySelectorAll('.chk').forEach(b => b.onclick = () => toggleTask(+b.dataset.id));
@@ -673,10 +703,18 @@ function doCheckin() {
   if (dow===0) checkin.weekDays=[];
   if (!checkin.weekDays.includes(dow)) checkin.weekDays.push(dow);
   let exp=30,coins=20,msg='📅 签到成功！';
-  if (checkin.streak%7===0){exp=120;coins=80;msg='👑 连续7天！女王级奖励！';}
-  else if (checkin.streak%3===0){exp=50;coins=30;msg='⚡ 连续3天！额外加成！';}
+  let showLove = false, loveIs7 = false;
+  if (checkin.streak%7===0){exp=120;coins=80;msg='👑 连续7天！女王级奖励！';showLove=true;loveIs7=true;}
+  else if (checkin.streak%3===0){exp=50;coins=30;msg='⚡ 连续3天！额外加成！';showLove=true;}
   addExp(exp,coins); showGain('+'+exp+' EXP','exp'); setTimeout(()=>showGain('+'+coins+' 皇帝币','coin'),400);
   showToast(msg); save(); updateUI(); renderCheckin();
+  if (showLove) {
+    const emojis = loveIs7 ? LOVE_EMOJIS_7 : LOVE_EMOJIS_3;
+    document.getElementById('love-emoji').textContent = emojis[Math.floor(Math.random()*emojis.length)];
+    document.getElementById('love-msg').textContent = LOVE_MSGS[Math.floor(Math.random()*LOVE_MSGS.length)];
+    document.getElementById('love-streak-lbl').textContent = '连续签到第 '+checkin.streak+' 天 🔥';
+    setTimeout(()=>openModal('love-modal'), 800);
+  }
 }
 
 // ── SHOP ──────────────────────────────────────────
@@ -692,7 +730,7 @@ function renderShop() {
       `<div class="rinfo"><div class="rn">${r.name}</div><div class="rc">⚡ ${r.cost} 皇帝币</div></div>`+
       `<div style="display:flex;gap:6px;align-items:center;">`+
       `<button class="buybtn" data-rid="${r.id}" ${can?'':'disabled'}>兑换</button>`+
-      `<button class="ibtn" data-redit="${r.id}">✏️</button></div>`;
+      `<button class="ibtn" data-redit="${r.id}"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>编辑</button></div>`;
     list.appendChild(row);
   });
   list.querySelectorAll('.buybtn:not(:disabled)').forEach(b => b.onclick = ()=>buyReward(+b.dataset.rid));
@@ -804,7 +842,7 @@ document.getElementById('btn-add-reward').onclick = addReward;
 document.getElementById('color-picker').oninput = e => applyCustomColor(e.target.value);
 
 // Close modals on backdrop click
-['name-modal','task-modal','reward-modal','reset-modal'].forEach(id=>{
+['name-modal','task-modal','reward-modal','reset-modal','love-modal'].forEach(id=>{
   document.getElementById(id).onclick = e => { if(e.target.id===id) closeModal(id); };
 });
 document.getElementById('inp-name').onkeydown = e => { if(e.key==='Enter') saveName(); };
