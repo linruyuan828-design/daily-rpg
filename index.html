@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>小林的冒险日志</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  background: #0a0a12; color: #e8e6f0; min-height: 100vh;
+}
+.app { max-width: 480px; margin: 0 auto; padding: 0 0 80px; }
+.nav {
+  position: fixed; bottom: 0; left: 50%; transform: translateX(-50%);
+  width: 100%; max-width: 480px;
+  background: #12111c; border-top: 1px solid #2a2740;
+  display: flex; z-index: 50;
+}
+.nav-btn {
+  flex: 1; background: none; border: none; cursor: pointer;
+  padding: 12px 4px 16px; display: flex; flex-direction: column;
+  align-items: center; gap: 4px; color: #45435a; transition: color 0.2s;
+}
+.nav-btn.active { color: #a78bfa; }
+.nav-icon { font-size: 20px; line-height: 1; }
+.nav-label { font-size: 10px; letter-spacing: 0.5px; }
+.page-header {
+  padding: 1.5rem 1rem 0.5rem;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.page-title { font-size: 11px; letter-spacing: 3px; color: #45435a; text-transform: uppercase; }
+.coins-display {
+  display: flex; align-items: center; gap: 6px;
+  background: #17151f; border: 1px solid #2a2740;
+  border-radius: 999px; padding: 6px 14px;
+  font-size: 13px; font-weight: 600; color: #fbbf24;
+}
+.panel {
+  background: #17151f; border: 1px solid #2a2740;
+  border-radius: 16px; padding: 1.25rem; margin: 12px 1rem 0;
+}
+.char-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+.avatar {
+  width: 56px; height: 56px; border-radius: 50%;
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; font-weight: 700; color: #fff; flex-shrink: 0;
+  box-shadow: 0 0 24px rgba(124,58,237,0.45);
+}
+.char-name { font-size: 20px; font-weight: 700; color: #e8e6f0; }
+.char-title-el { font-size: 12px; color: #a78bfa; margin-top: 2px; letter-spacing: 0.5px; }
+.char-level { font-size: 11px; color: #6b6880; margin-top: 3px; }
+.exp-label { display: flex; justify-content: space-between; font-size: 11px; color: #6b6880; margin-bottom: 6px; }
+.exp-track { height: 7px; background: #1e1c2a; border-radius: 4px; overflow: hidden; }
+.exp-fill {
+  height: 100%; border-radius: 4px;
+  background: linear-gradient(90deg, #7c3aed, #a78bfa, #c084fc);
+  transition: width 0.8s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 0 10px rgba(124,58,237,0.5);
+}
+.stats { display: flex; gap: 8px; margin-top: 14px; }
+.stat {
+  flex: 1; background: #0f0e18; border: 1px solid #2a2740;
+  border-radius: 10px; padding: 10px 4px; text-align: center;
+}
+.stat-num { font-size: 18px; font-weight: 700; color: #e8e6f0; line-height: 1; }
+.stat-label { font-size: 10px; color: #6b6880; margin-top: 4px; }
+.section-title {
+  font-size: 11px; font-weight: 700; color: #6b6880;
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: 14px; display: flex; align-items: center; gap: 8px;
+}
+.section-title::after { content:''; flex:1; height:1px; background:#1e1c2a; }
+.task-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 11px 0; border-bottom: 1px solid #1a1828; transition: opacity 0.3s;
+}
+.task-row:last-child { border-bottom: none; }
+.task-row.done { opacity: 0.35; }
+.check {
+  width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid #3a3750; background: transparent; cursor: pointer;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all 0.2s; color: transparent; font-size: 12px;
+}
+.check.done { border:none; background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff; box-shadow:0 0 12px rgba(124,58,237,0.45); }
+.task-info { flex: 1; min-width: 0; }
+.task-name { font-size: 14px; color: #e8e6f0; }
+.task-row.done .task-name { text-decoration: line-through; }
+.task-meta { font-size: 11px; color: #45435a; margin-top: 2px; }
+.task-rewards { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; }
+.exp-badge { font-size: 11px; color: #a78bfa; font-weight: 600; white-space: nowrap; }
+.coin-badge { font-size: 11px; color: #fbbf24; font-weight: 600; white-space: nowrap; }
+.remove-btn { background:none; border:none; color:#3a3750; cursor:pointer; font-size:20px; padding:0 2px; line-height:1; transition:color 0.2s; }
+.remove-btn:hover { color:#f87171; }
+.add-area { display: flex; gap: 8px; }
+.add-area input {
+  flex:1; background:#0f0e18; border:1px solid #2a2740;
+  border-radius:10px; padding:10px 14px; font-size:14px;
+  color:#e8e6f0; outline:none; transition:border-color 0.2s; font-family:inherit;
+}
+.add-area input::placeholder { color:#45435a; }
+.add-area input:focus { border-color:#7c3aed; }
+.add-area button {
+  background:linear-gradient(135deg,#7c3aed,#a78bfa); border:none;
+  border-radius:10px; padding:10px 16px; color:#fff; font-size:14px;
+  cursor:pointer; font-family:inherit; font-weight:600; white-space:nowrap;
+}
+.checkin-btn {
+  width:100%; padding:14px;
+  background:linear-gradient(135deg,#7c3aed,#a78bfa);
+  border:none; border-radius:12px; cursor:pointer;
+  font-size:15px; font-weight:700; color:#fff; font-family:inherit;
+  letter-spacing:1px; transition:opacity 0.2s;
+  box-shadow:0 4px 20px rgba(124,58,237,0.4);
+}
+.checkin-btn:disabled { background:#2a2740; color:#6b6880; box-shadow:none; cursor:not-allowed; }
+.checkin-streak { display:flex; align-items:center; justify-content:center; gap:6px; margin-top:10px; font-size:12px; color:#6b6880; }
+.checkin-days { display:flex; gap:6px; margin-top:12px; justify-content:center; flex-wrap:wrap; }
+.day-dot {
+  width:36px; height:36px; border-radius:50%;
+  border:1px solid #2a2740; display:flex; align-items:center;
+  justify-content:center; font-size:11px; color:#6b6880;
+}
+.day-dot.done { background:linear-gradient(135deg,#7c3aed,#a78bfa); border:none; color:#fff; }
+.day-dot.today { border-color:#a78bfa; color:#a78bfa; }
+.reward-row {
+  display:flex; align-items:center; gap:12px;
+  padding:12px 0; border-bottom:1px solid #1a1828;
+}
+.reward-row:last-child { border-bottom:none; }
+.reward-icon {
+  width:42px; height:42px; border-radius:12px;
+  background:#0f0e18; border:1px solid #2a2740;
+  display:flex; align-items:center; justify-content:center; font-size:20px; flex-shrink:0;
+}
+.reward-info { flex:1; }
+.reward-name { font-size:14px; color:#e8e6f0; font-weight:500; }
+.reward-cost { font-size:11px; color:#fbbf24; margin-top:2px; }
+.buy-btn {
+  background:none; border:1px solid #fbbf24; border-radius:8px;
+  padding:6px 12px; color:#fbbf24; font-size:12px; font-weight:700;
+  cursor:pointer; font-family:inherit; white-space:nowrap; transition:all 0.2s;
+}
+.buy-btn:hover { background:#fbbf24; color:#0a0a12; }
+.buy-btn:disabled { border-color:#3a3750; color:#45435a; cursor:not-allowed; }
+.buy-btn:disabled:hover { background:none; color:#45435a; }
+.add-reward-area { display:flex; gap:8px; flex-wrap:wrap; }
+.add-reward-area input {
+  flex:1; min-width:100px; background:#0f0e18; border:1px solid #2a2740;
+  border-radius:10px; padding:8px 12px; font-size:13px;
+  color:#e8e6f0; outline:none; font-family:inherit;
+}
+.add-reward-area input:focus { border-color:#fbbf24; }
+.add-reward-area button {
+  background:none; border:1px solid #fbbf24; border-radius:10px;
+  padding:8px 14px; color:#fbbf24; font-size:13px; font-weight:700;
+  cursor:pointer; font-family:inherit; white-space:nowrap;
+}
+.toast {
+  position:fixed; top:20px; left:50%; transform:translateX(-50%) translateY(-120px);
+  background:linear-gradient(135deg,#7c3aed,#a78bfa); color:#fff;
+  padding:12px 28px; border-radius:999px; font-size:14px; font-weight:700;
+  white-Space:nowrap; z-index:99; transition:transform 0.4s cubic-bezier(.34,1.56,.64,1);
+  box-shadow:0 8px 32px rgba(124,58,237,0.5); text-align:center; max-width:90vw;
+}
+.toast.show { transform:translateX(-50%) translateY(0); }
+.gain {
+  position:fixed; top:40%; left:50%; transform:translate(-50%,-50%);
+  font-size:24px; font-weight:800; pointer-events:none;
+  animation:gainPop 1.3s ease forwards; z-index:98;
+}
+.gain.exp { color:#a78bfa; text-shadow:0 0 20px rgba(167,139,250,0.8); }
+.gain.coin { color:#fbbf24; text-shadow:0 0 20px rgba(251,191,36,0.8); }
+@keyframes gainPop {
+  0%   { opacity:1; transform:translate(-50%,-50%) scale(0.7); }
+  30%  { opacity:1; transform:translate(-50%,-65%) scale(1.15); }
+  100% { opacity:0; transform:translate(-50%,-100%) scale(1); }
+}
+.page { display:none; }
+.page.active { display:block; }
+.note { font-size:11px; color:#45435a; text-align:center; margin-top:10px; }
+.checkin-rewards-grid { display:flex; flex-direction:column; gap:0; }
+.cr-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid #1a1828; }
+.cr-row:last-child { border-bottom:none; }
+.cr-icon { font-size:22px; width:36px; text-align:center; }
+.cr-info { flex:1; }
+.cr-name { font-size:13px; color:#e8e6f0; font-weight:500; }
+.cr-sub { font-size:11px; color:#45435a; margin-top:2px; }
+.cr-rewards { display:flex; flex-direction:column; align-items:flex-end; gap:2px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="toast" id="toast"></div>
+
+  <!-- HOME -->
+  <div class="page active" id="page-home">
+    <div class="page-header">
+      <div class="page-title">冒险者日志</div>
+      <div class="coins-display">⚡ <span id="coins-h">0</span> 灵石</div>
+    </div>
+    <div class="panel">
+      <div class="char-top">
+        <div class="avatar">小</div>
+        <div>
+          <div class="char-name">小林</div>
+          <div class="char-title-el" id="char-title">初入江湖的少女</div>
+          <div class="char-level">Lv.<span id="lv-num">1</span> &nbsp;·&nbsp; 总计 <span id="total-exp">0</span> EXP</div>
+        </div>
+      </div>
+      <div class="exp-label"><span>经验值</span><span><span id="cur-exp">0</span> / <span id="max-exp">100</span></span></div>
+      <div class="exp-track"><div class="exp-fill" id="exp-fill" style="width:0%"></div></div>
+      <div class="stats">
+        <div class="stat"><div class="stat-num" id="done-count">0</div><div class="stat-label">今日完成</div></div>
+        <div class="stat"><div class="stat-num" id="left-count">0</div><div class="stat-label">待完成</div></div>
+        <div class="stat"><div class="stat-num" id="streak-num">0</div><div class="stat-label">连续签到</div></div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="section-title">今日副本</div>
+      <div id="task-list"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">添加任务</div>
+      <div class="add-area">
+        <input type="text" id="new-input" placeholder="输入任务名称..." />
+        <button id="add-btn">添加</button>
+      </div>
+      <div class="note">每日 00:00 任务自动重置 · 等级与灵石永久保留</div>
+    </div>
+  </div>
+
+  <!-- CHECKIN -->
+  <div class="page" id="page-checkin">
+    <div class="page-header">
+      <div class="page-title">每日签到</div>
+      <div class="coins-display">⚡ <span id="coins-c">0</span> 灵石</div>
+    </div>
+    <div class="panel">
+      <div class="section-title">本周进度</div>
+      <div class="checkin-days" id="checkin-days"></div>
+      <div style="margin-top:18px;">
+        <button class="checkin-btn" id="checkin-btn">签到领取奖励</button>
+      </div>
+      <div class="checkin-streak">
+        🔥 已连续签到 <strong id="streak-label" style="color:#f97316;margin:0 4px;">0</strong> 天
+      </div>
+    </div>
+    <div class="panel">
+      <div class="section-title">签到奖励一览</div>
+      <div class="checkin-rewards-grid">
+        <div class="cr-row">
+          <div class="cr-icon">📅</div>
+          <div class="cr-info"><div class="cr-name">基础签到</div><div class="cr-sub">每日都有</div></div>
+          <div class="cr-rewards"><div class="exp-badge">+30 EXP</div><div class="coin-badge">+20 灵石</div></div>
+        </div>
+        <div class="cr-row">
+          <div class="cr-icon">⚡</div>
+          <div class="cr-info"><div class="cr-name">连续 3 天</div><div class="cr-sub">坚持就是胜利</div></div>
+          <div class="cr-rewards"><div class="exp-badge">+50 EXP</div><div class="coin-badge">+30 灵石</div></div>
+        </div>
+        <div class="cr-row">
+          <div class="cr-icon">👑</div>
+          <div class="cr-info"><div class="cr-name">连续 7 天</div><div class="cr-sub">女王级待遇</div></div>
+          <div class="cr-rewards"><div class="exp-badge">+120 EXP</div><div class="coin-badge">+80 灵石</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SHOP -->
+  <div class="page" id="page-shop">
+    <div class="page-header">
+      <div class="page-title">灵石商店</div>
+      <div class="coins-display">⚡ <span id="coins-s">0</span> 灵石</div>
+    </div>
+    <div class="panel">
+      <div class="section-title">犒劳自己</div>
+      <div id="shop-list"></div>
+    </div>
+    <div class="panel">
+      <div class="section-title">添加奖励</div>
+      <div class="add-reward-area">
+        <input type="text" id="reward-name" placeholder="奖励名称，如：喝奶茶" />
+        <input type="number" id="reward-cost" placeholder="灵石" min="1" style="width:80px;flex:none;" />
+        <button id="add-reward-btn">添加</button>
+      </div>
+      <div class="note" style="margin-top:8px;">完成任务和签到赚取灵石，花完不清零</div>
+    </div>
+  </div>
+
+  <nav class="nav">
+    <button class="nav-btn active" onclick="switchPage('home',this)">
+      <div class="nav-icon">⚔️</div><div class="nav-label">副本</div>
+    </button>
+    <button class="nav-btn" onclick="switchPage('checkin',this)">
+      <div class="nav-icon">📅</div><div class="nav-label">签到</div>
+    </button>
+    <button class="nav-btn" onclick="switchPage('shop',this)">
+      <div class="nav-icon">🛒</div><div class="nav-label">商店</div>
+    </button>
+  </nav>
+</div>
+
+<script>
+const TITLES = [
+  '初入江湖的少女','崭露头角的新星','锋芒毕露的勇者',
+  '威震四方的猛将','叱咤风云的霸主','傲视群雄的女王',
+  '天下无双的帝将','九五至尊的女皇','凌驾天地的神明','万界至尊的统治者'
+];
+const EXP_TABLE = [100,250,450,700,1050,1500,2100,2900,4000,6000];
+function expForLevel(lv){ return EXP_TABLE[Math.min(lv-1,EXP_TABLE.length-1)]; }
+function getTitle(lv){ return TITLES[Math.min(lv-1,TITLES.length-1)]; }
+
+const DEFAULT_TASKS = [
+  {id:1,name:'准时起床',exp:20,coins:10,category:'作息',custom:false},
+  {id:2,name:'吃早饭',exp:15,coins:8,category:'饮食',custom:false},
+  {id:3,name:'学习 1 小时',exp:50,coins:25,category:'学业',custom:false},
+  {id:4,name:'喝够 8 杯水',exp:10,coins:5,category:'健康',custom:false},
+  {id:5,name:'运动 30 分钟',exp:40,coins:20,category:'健康',custom:false},
+  {id:6,name:'整理房间',exp:20,coins:10,category:'生活',custom:false},
+  {id:7,name:'好好吃晚饭',exp:15,coins:8,category:'饮食',custom:false},
+  {id:8,name:'按时睡觉',exp:30,coins:15,category:'作息',custom:false},
+];
+const DEFAULT_REWARDS = [
+  {id:1,name:'喝一杯奶茶',icon:'🧋',cost:80,custom:false},
+  {id:2,name:'看一集剧',icon:'🎬',cost:50,custom:false},
+  {id:3,name:'刷一小时小红书',icon:'📱',cost:40,custom:false},
+  {id:4,name:'买一件小东西',icon:'🛍️',cost:150,custom:false},
+  {id:5,name:'睡个懒觉',icon:'😴',cost:60,custom:false},
+];
+
+let char={level:1,exp:0,totalExp:0,coins:0};
+let tasks=[], rewards=[];
+let checkinData={lastDate:'',streak:0,weekDays:[]};
+
+function save(){
+  localStorage.setItem('xlin3-char',JSON.stringify(char));
+  localStorage.setItem('xlin3-tasks',JSON.stringify(tasks));
+  localStorage.setItem('xlin3-rewards',JSON.stringify(rewards));
+  localStorage.setItem('xlin3-checkin',JSON.stringify(checkinData));
+  localStorage.setItem('xlin3-date',new Date().toDateString());
+}
+function load(){
+  try{
+    const today=new Date().toDateString();
+    const savedDate=localStorage.getItem('xlin3-date')||'';
+    const sc=localStorage.getItem('xlin3-char');
+    const st=localStorage.getItem('xlin3-tasks');
+    const sr=localStorage.getItem('xlin3-rewards');
+    const sd=localStorage.getItem('xlin3-checkin');
+    if(sc) char=JSON.parse(sc);
+    if(sr) rewards=JSON.parse(sr); else rewards=JSON.parse(JSON.stringify(DEFAULT_REWARDS));
+    if(sd) checkinData=JSON.parse(sd); if(!checkinData.weekDays) checkinData.weekDays=[];
+    if(st){
+      tasks=JSON.parse(st);
+      if(savedDate!==today) tasks=tasks.map(t=>({...t,completed:false}));
+    } else { tasks=DEFAULT_TASKS.map(t=>({...t,completed:false})); }
+  }catch(e){
+    tasks=DEFAULT_TASKS.map(t=>({...t,completed:false}));
+    rewards=JSON.parse(JSON.stringify(DEFAULT_REWARDS));
+  }
+}
+
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+function showGain(text,type){
+  const el=document.createElement('div');
+  el.className='gain '+type; el.textContent=text;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1300);
+}
+function updateCoins(){
+  ['h','c','s'].forEach(id=>{
+    const el=document.getElementById('coins-'+id);
+    if(el) el.textContent=char.coins;
+  });
+}
+
+function updateCharUI(){
+  const needed=expForLevel(char.level);
+  const pct=Math.min(Math.round(char.exp/needed*100),100);
+  document.getElementById('lv-num').textContent=char.level;
+  document.getElementById('char-title').textContent=getTitle(char.level);
+  document.getElementById('cur-exp').textContent=char.exp;
+  document.getElementById('max-exp').textContent=needed;
+  document.getElementById('total-exp').textContent=char.totalExp||0;
+  document.getElementById('exp-fill').style.width=pct+'%';
+  document.getElementById('streak-num').textContent=checkinData.streak||0;
+  const done=tasks.filter(t=>t.completed).length;
+  document.getElementById('done-count').textContent=done;
+  document.getElementById('left-count').textContent=tasks.length-done;
+  updateCoins();
+}
+
+function renderTasks(){
+  const list=document.getElementById('task-list');
+  list.innerHTML='';
+  tasks.forEach(task=>{
+    const row=document.createElement('div');
+    row.className='task-row'+(task.completed?' done':'');
+    row.innerHTML=`
+      <button class="check ${task.completed?'done':''}" data-id="${task.id}">${task.completed?'✓':''}</button>
+      <div class="task-info">
+        <div class="task-name">${task.name}</div>
+        <div class="task-meta">${task.category}</div>
+      </div>
+      <div class="task-rewards">
+        <div class="exp-badge">+${task.exp} EXP</div>
+        <div class="coin-badge">+${task.coins} 灵石</div>
+      </div>
+      ${task.custom?`<button class="remove-btn" data-rm="${task.id}">×</button>`:''}
+    `;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('.check').forEach(btn=>btn.addEventListener('click',()=>toggleTask(Number(btn.dataset.id))));
+  list.querySelectorAll('.remove-btn').forEach(btn=>btn.addEventListener('click',()=>removeTask(Number(btn.dataset.rm))));
+}
+
+function addExp(amount,coins){
+  char.exp+=amount; char.totalExp=(char.totalExp||0)+amount; char.coins+=coins;
+  let leveled=false;
+  while(char.exp>=expForLevel(char.level)){ char.exp-=expForLevel(char.level); char.level++; leveled=true; }
+  if(leveled) setTimeout(()=>showToast('👑 LEVEL UP！升至 Lv.'+char.level+' · '+getTitle(char.level)),300);
+}
+
+function toggleTask(id){
+  const task=tasks.find(t=>t.id===id); if(!task) return;
+  if(!task.completed){
+    task.completed=true;
+    addExp(task.exp,task.coins);
+    showGain('+'+task.exp+' EXP','exp');
+    setTimeout(()=>showGain('+'+task.coins+' 灵石','coin'),400);
+  } else {
+    task.completed=false;
+    char.exp=Math.max(0,char.exp-task.exp);
+    char.totalExp=Math.max(0,(char.totalExp||0)-task.exp);
+    char.coins=Math.max(0,char.coins-task.coins);
+  }
+  save(); updateCharUI(); renderTasks();
+}
+function removeTask(id){ tasks=tasks.filter(t=>t.id!==id); save(); updateCharUI(); renderTasks(); }
+function addTask(){
+  const input=document.getElementById('new-input');
+  const name=input.value.trim(); if(!name) return;
+  tasks.push({id:Date.now(),name,exp:30,coins:15,category:'自定义',custom:true,completed:false});
+  input.value=''; save(); updateCharUI(); renderTasks();
+}
+
+function renderCheckin(){
+  const today=new Date().toDateString();
+  const alreadyDone=checkinData.lastDate===today;
+  const btn=document.getElementById('checkin-btn');
+  btn.disabled=alreadyDone; btn.textContent=alreadyDone?'✓ 今日已签到':'签到领取奖励';
+  document.getElementById('streak-label').textContent=checkinData.streak||0;
+  const days=document.getElementById('checkin-days');
+  days.innerHTML='';
+  const labels=['一','二','三','四','五','六','日'];
+  const dayOfWeek=(new Date().getDay()+6)%7;
+  for(let i=0;i<7;i++){
+    const dot=document.createElement('div');
+    const isToday=i===dayOfWeek;
+    const isDone=(checkinData.weekDays||[]).includes(i);
+    dot.className='day-dot'+(isDone?' done':isToday?' today':'');
+    dot.textContent=isDone?'✓':labels[i];
+    days.appendChild(dot);
+  }
+}
+
+function doCheckin(){
+  const today=new Date().toDateString();
+  if(checkinData.lastDate===today) return;
+  const yesterday=new Date(Date.now()-86400000).toDateString();
+  checkinData.streak=checkinData.lastDate===yesterday?(checkinData.streak||0)+1:1;
+  checkinData.lastDate=today;
+  const dayOfWeek=(new Date().getDay()+6)%7;
+  if(!checkinData.weekDays) checkinData.weekDays=[];
+  if(dayOfWeek===0) checkinData.weekDays=[];
+  if(!checkinData.weekDays.includes(dayOfWeek)) checkinData.weekDays.push(dayOfWeek);
+  let exp=30,coins=20,msg='📅 签到成功！继续加油！';
+  if(checkinData.streak>0&&checkinData.streak%7===0){exp=120;coins=80;msg='👑 连续7天！女王级奖励到手！';}
+  else if(checkinData.streak>0&&checkinData.streak%3===0){exp=50;coins=30;msg='⚡ 连续3天！额外加成已触发！';}
+  addExp(exp,coins);
+  showGain('+'+exp+' EXP','exp');
+  setTimeout(()=>showGain('+'+coins+' 灵石','coin'),400);
+  showToast(msg);
+  save(); updateCharUI(); renderCheckin();
+}
+
+function renderShop(){
+  const list=document.getElementById('shop-list');
+  list.innerHTML='';
+  rewards.forEach(r=>{
+    const canAfford=char.coins>=r.cost;
+    const row=document.createElement('div');
+    row.className='reward-row';
+    row.innerHTML=`
+      <div class="reward-icon">${r.icon||'🎁'}</div>
+      <div class="reward-info">
+        <div class="reward-name">${r.name}</div>
+        <div class="reward-cost">⚡ ${r.cost} 灵石</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+        <button class="buy-btn" data-rid="${r.id}" ${canAfford?'':'disabled'}>兑换</button>
+        ${r.custom?`<button class="remove-btn" data-rrm="${r.id}" style="font-size:16px;">×</button>`:''}
+      </div>
+    `;
+    list.appendChild(row);
+  });
+  list.querySelectorAll('.buy-btn:not(:disabled)').forEach(btn=>btn.addEventListener('click',()=>buyReward(Number(btn.dataset.rid))));
+  list.querySelectorAll('[data-rrm]').forEach(btn=>btn.addEventListener('click',()=>removeReward(Number(btn.dataset.rrm))));
+}
+
+function buyReward(id){
+  const r=rewards.find(x=>x.id===id); if(!r) return;
+  if(char.coins<r.cost){showToast('灵石不足！继续完成任务吧～');return;}
+  char.coins-=r.cost;
+  showToast('🎉 已兑换：'+r.name+'！好好享受～');
+  save(); updateCoins(); renderShop();
+}
+function removeReward(id){ rewards=rewards.filter(x=>x.id!==id); save(); renderShop(); }
+function addReward(){
+  const name=document.getElementById('reward-name').value.trim();
+  const cost=parseInt(document.getElementById('reward-cost').value)||50;
+  if(!name) return;
+  rewards.push({id:Date.now(),name,icon:'🎁',cost,custom:true});
+  document.getElementById('reward-name').value='';
+  document.getElementById('reward-cost').value='';
+  save(); renderShop();
+}
+
+function switchPage(name,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  btn.classList.add('active');
+  if(name==='checkin') renderCheckin();
+  if(name==='shop') renderShop();
+}
+
+load(); updateCharUI(); renderTasks(); renderCheckin();
+document.getElementById('add-btn').addEventListener('click',addTask);
+document.getElementById('new-input').addEventListener('keydown',e=>{if(e.key==='Enter')addTask();});
+document.getElementById('checkin-btn').addEventListener('click',doCheckin);
+document.getElementById('add-reward-btn').addEventListener('click',addReward);
+document.getElementById('reward-name').addEventListener('keydown',e=>{if(e.key==='Enter')addReward();});
+</script>
+</body>
+</html>
