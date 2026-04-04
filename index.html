@@ -112,6 +112,21 @@ body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1
 .day-pick:has(input:checked){border-color:var(--c2);color:var(--c2);background:var(--c5);}
 .day-pick input{display:none;}
 .freq-badge{font-size:10px;padding:2px 6px;border-radius:4px;background:var(--c5);color:var(--c7);margin-left:4px;}
+.lv-table{width:100%;border-collapse:collapse;font-size:12px;}
+.lv-table td{padding:8px 6px;border-bottom:1px solid var(--c5);}
+.lv-table tr:last-child td{border-bottom:none;}
+.lv-table .lv-num{color:var(--c8);width:36px;}
+.lv-table .lv-name{font-weight:600;}
+.lv-table .lv-exp{color:var(--c7);text-align:right;white-space:nowrap;}
+.lv-table .lv-date{color:var(--c2);text-align:right;font-size:11px;white-space:nowrap;}
+.lv-table tr.lv-current td{background:var(--c5);border-radius:8px;}
+.lv-table tr.lv-current .lv-name{color:var(--c2);}
+.rdm-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--c5);font-size:13px;}
+.rdm-row:last-child{border-bottom:none;}
+.rdm-icon{font-size:18px;flex-shrink:0;}
+.rdm-name{flex:1;}
+.rdm-cost{color:var(--coin);font-size:12px;white-space:nowrap;}
+.rdm-date{font-size:11px;color:var(--c7);white-space:nowrap;}
 .page{display:none;}
 .page.active{display:block;}
 #pw-screen{position:fixed;inset:0;background:#0a0a12;z-index:999;display:flex;align-items:center;justify-content:center;padding:2rem;}
@@ -227,6 +242,10 @@ body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1
       <div id="shop-list"></div>
     </div>
     <div class="panel">
+      <div class="sec">兑换历史</div>
+      <div id="redeem-log"></div>
+    </div>
+    <div class="panel">
       <div class="sec">添加奖励</div>
       <div style="display:flex;flex-direction:column;gap:8px;">
         <input class="sinput" id="new-reward-name" placeholder="奖励名称，如：喝奶茶..." />
@@ -274,6 +293,10 @@ body.t-custom{background:#0a0a12;color:#e8e6f0;--c3:#17151f;--c4:#2a2740;--c5:#1
           </div>
         </div>
       </div>
+    </div>
+    <div class="panel">
+      <div class="sec">等级进度</div>
+      <div id="level-table"></div>
     </div>
     <div class="panel">
       <div class="sec">账号管理</div>
@@ -421,6 +444,8 @@ const DEFAULT_REWARDS = [
 // ── STATE ─────────────────────────────────────────
 let char = {level:1,exp:0,totalExp:0,coins:0,name:'冒险者',customColor:'#7c3aed'};
 let tasks = [], rewards = [], checkin = {lastDate:'',streak:0,weekDays:[]};
+let redeemLog = []; // [{date,name,icon,cost}]
+let levelLog = {};  // {2:'日期', 3:'日期', ...}
 let skin = 'dark';
 
 // ── STORAGE ───────────────────────────────────────
@@ -431,6 +456,8 @@ function save() {
   localStorage.setItem(SK+'-checkin', JSON.stringify(checkin));
   localStorage.setItem(SK+'-skin', skin);
   localStorage.setItem(SK+'-date', new Date().toDateString());
+  localStorage.setItem(SK+'-redeems', JSON.stringify(redeemLog));
+  localStorage.setItem(SK+'-levels', JSON.stringify(levelLog));
 }
 
 function load() {
@@ -451,6 +478,10 @@ function load() {
       tasks = p.length ? (savedDate !== today ? p.map(t=>({...t,completed:false})) : p) : DEFAULT_TASKS.map(t=>({...t,completed:false}));
     } else tasks = DEFAULT_TASKS.map(t=>({...t,completed:false}));
     if (ss) { skin = ss; applySkin(ss); }
+    const sl = localStorage.getItem(SK+'-redeems');
+    if (sl) redeemLog = JSON.parse(sl);
+    const slv = localStorage.getItem(SK+'-levels');
+    if (slv) levelLog = JSON.parse(slv);
   } catch(e) {
     tasks = DEFAULT_TASKS.map(t=>({...t,completed:false}));
     rewards = DEFAULT_REWARDS.map(r=>({...r}));
@@ -566,7 +597,9 @@ function addExp(exp, coins) {
   let up = false;
   while (char.exp >= EXP_TABLE[Math.min(char.level-1,EXP_TABLE.length-1)]) {
     char.exp -= EXP_TABLE[Math.min(char.level-1,EXP_TABLE.length-1)];
-    char.level++; up = true;
+    char.level++;
+    levelLog[char.level] = levelLog[char.level] || new Date().toLocaleDateString('zh-CN');
+    up = true;
   }
   if (up) setTimeout(()=>showToast('👑 LEVEL UP！Lv.'+char.level+' · '+TITLES[Math.min(char.level-1,TITLES.length-1)]),300);
 }
@@ -735,6 +768,39 @@ function renderShop() {
   });
   list.querySelectorAll('.buybtn:not(:disabled)').forEach(b => b.onclick = ()=>buyReward(+b.dataset.rid));
   list.querySelectorAll('[data-redit]').forEach(b => b.onclick = ()=>openRewardEdit(+b.dataset.redit));
+  // 渲染兑换历史
+  const log = document.getElementById('redeem-log');
+  if (!log) return;
+  if (!redeemLog.length) { log.innerHTML = '<div style="font-size:12px;color:var(--c7);padding:8px 0;">暂无兑换记录</div>'; return; }
+  log.innerHTML = '';
+  redeemLog.slice(0,20).forEach(r => {
+    const row = document.createElement('div');
+    row.className = 'rdm-row';
+    row.innerHTML = `<span class="rdm-icon">${r.icon}</span><span class="rdm-name">${r.name}</span><span class="rdm-cost">-${r.cost} 皇帝币</span><span class="rdm-date">${r.date}</span>`;
+    log.appendChild(row);
+  });
+}
+
+function renderLevelTable() {
+  const el = document.getElementById('level-table');
+  if (!el) return;
+  const expReqs = [0,...EXP_TABLE]; // index 0 = Lv1(起点), index 1 = 升到Lv2需要的EXP
+  let html = '<table class="lv-table"><tbody>';
+  for (let i = 0; i < TITLES.length; i++) {
+    const lv = i + 1;
+    const isCurrent = lv === char.level;
+    const reached = lv === 1 || levelLog[lv];
+    const dateStr = lv === 1 ? '起点' : (levelLog[lv] || '—');
+    const expStr = lv === 1 ? '—' : (EXP_TABLE[i-1] + ' EXP');
+    html += `<tr class="${isCurrent?'lv-current':''}">
+      <td class="lv-num">Lv${lv}</td>
+      <td class="lv-name">${TITLES[i]}</td>
+      <td class="lv-exp">${expStr}</td>
+      <td class="lv-date">${isCurrent?'<span style="color:var(--c2);font-weight:700;">▶ 当前</span>':dateStr}</td>
+    </tr>`;
+  }
+  html += '</tbody></table>';
+  el.innerHTML = html;
 }
 
 function addReward() {
@@ -750,7 +816,10 @@ function addReward() {
 function buyReward(id) {
   const r = rewards.find(x=>x.id===id); if(!r) return;
   if (char.coins<r.cost){showToast('皇帝币不足！继续完成任务吧～');return;}
-  char.coins -= r.cost; showToast('🎉 已兑换：'+r.name+'！好好享受～');
+  char.coins -= r.cost;
+  redeemLog.unshift({date:new Date().toLocaleDateString('zh-CN'), name:r.name, icon:r.icon||'🎁', cost:r.cost});
+  if (redeemLog.length > 50) redeemLog.length = 50;
+  showToast('🎉 已兑换：'+r.name+'！好好享受～');
   save(); updateUI(); renderShop();
 }
 
@@ -788,7 +857,7 @@ function doReset() {
 
 // ── EXPORT/IMPORT ─────────────────────────────────
 function exportSave() {
-  const data = {char,tasks,rewards,checkin,skin,v:1};
+  const data = {char,tasks,rewards,checkin,skin,redeemLog,levelLog,v:2};
   const a = document.createElement('a');
   a.href = URL.createObjectURL(new Blob([JSON.stringify(data)],{type:'application/json'}));
   a.download = '冒险者存档.json'; a.click();
@@ -805,7 +874,9 @@ document.getElementById('import-file').onchange = function(e) {
       if(d.rewards&&d.rewards.length) rewards=d.rewards;
       if(d.checkin) checkin=d.checkin;
       if(d.skin) {skin=d.skin; applySkin(d.skin);}
-      save(); updateUI(); renderTasks(); renderShop(); renderCheckin();
+      if(d.redeemLog) redeemLog=d.redeemLog;
+      if(d.levelLog) levelLog=d.levelLog;
+      save(); updateUI(); renderTasks(); renderShop(); renderCheckin(); renderLevelTable();
       showToast('✅ 存档导入成功！');
     } catch(err){showToast('❌ 文件有误，导入失败');}
   };
@@ -820,6 +891,7 @@ function goPage(name) {
   document.getElementById('nb-'+name).classList.add('active');
   if(name==='checkin') renderCheckin();
   if(name==='shop') renderShop();
+  if(name==='settings') renderLevelTable();
 }
 
 // ── TOAST & GAIN ──────────────────────────────────
@@ -850,7 +922,7 @@ document.getElementById('inp-name').onkeydown = e => { if(e.key==='Enter') saveN
 // ── INIT ──────────────────────────────────────────
 if (localStorage.getItem(SK+'-auth')==='1') {
   document.getElementById('pw-screen').style.display = 'none';
-  load(); updateUI(); renderTasks(); renderShop(); renderCheckin();
+  load(); updateUI(); renderTasks(); renderShop(); renderCheckin(); renderLevelTable();
 } else {
   document.getElementById('pw-screen').style.display = 'flex';
 }
